@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fabula Sprite Studio — preparación</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #17121f; color: #f2e9ff; }
+  main { max-width: 760px; margin: 2rem auto; padding: 1.5rem; background: #271d34; border: 1px solid #72569a; border-radius: 12px; }
+  label { display:block; margin-top:1rem; font-weight:700; } input, textarea, button { width:100%; box-sizing:border-box; margin-top:.35rem; padding:.65rem; border-radius:6px; border:1px solid #8a70b5; background:#17121f; color:inherit; }
+  textarea { min-height:7rem; } button { background:#7f56b3; font-weight:700; cursor:pointer; } img { display:none; max-width:240px; max-height:300px; margin-top:1rem; image-rendering:pixelated; }
+  small { color:#d4c4e9; }
+</style>
+<main>
+  <h1>Fabula Sprite Studio</h1>
+  <p>Prepara una ficha de producción para convertir una ilustración normal en un paquete de sprites 64×96.</p>
+  <label>Ilustración original <input id="reference" type="file" accept="image/*"></label>
+  <img id="preview" alt="Vista previa de referencia">
+  <label>Identificador <input id="id" value="character_001" pattern="[a-z0-9_]+"></label>
+  <label>Rasgos que no pueden cambiar <textarea id="identity">Cabello, sombrero, paleta, ropa, arma o foco mágico, y silueta.</textarea></label>
+  <label>Notas opcionales <textarea id="notes" placeholder="Dirección preferida, detalles de vestuario, personalidad visual..."></textarea></label>
+  <button id="export">Descargar solicitud de generación</button>
+  <small>Esta primera pantalla no envía tu imagen a ningún servicio. Genera un JSON y un brief para revisión antes de crear el pixel art.</small>
+</main>
+<script>
+  const reference = document.querySelector('#reference'), preview = document.querySelector('#preview');
+  reference.onchange = () => { const file = reference.files[0]; if (!file) return; preview.src = URL.createObjectURL(file); preview.style.display = 'block'; };
+  document.querySelector('#export').onclick = () => {
+    const id = document.querySelector('#id').value.trim();
+    if (!/^[a-z0-9_]+$/.test(id)) return alert('Usa minúsculas, números y guion bajo en el identificador.');
+    const request = { schemaVersion:'0.1.0', characterId:id, referenceFile:reference.files[0]?.name ?? null, identityLock:document.querySelector('#identity').value.trim(), notes:document.querySelector('#notes').value.trim(), output:{ frame:'64x96', transparent:true, animations:['idle','run','run_ne','run_se','fall','down','rise','hurt'] } };
+    const blob = new Blob([JSON.stringify(request, null, 2)], {type:'application/json'}), link = document.createElement('a');
+    link.href = URL.createObjectURL(blob); link.download = `${id}-sprite-request.json`; link.click(); URL.revokeObjectURL(link.href);
+  };
+</script>
