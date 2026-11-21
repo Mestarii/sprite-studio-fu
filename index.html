@@ -123,7 +123,13 @@
     artDirection.identity += ' Mantén los tonos de cada prenda, el corte, los estampados y los detalles distintivos visibles a escala de token. Toma la postura de la ilustración del personaje.';
     artDirection.motion += ' Usa el reposo elegido como base de todo el paquete. La respiración acompaña el gesto. Al correr, cubrirse o caer, deja que los brazos respondan a la acción y conserva el agarre cuando sea posible. Al terminar un gesto de espera o la recuperación, vuelve al reposo correspondiente.';
     artDirection.review += ' Compara la primera pose con la ilustración antes de derivar las demás. Comprueba el gesto de cada mano, los objetos, el apoyo del cuerpo y los colores de las prendas.';
-    const notes = [artDirection.camera, artDirection.finish, artDirection.palette, artDirection.identity, basePose, artDirection.framing, artDirection.motion, artDirection.review, document.querySelector('#notes').value.trim()].filter(Boolean).join('\n');
+    artDirection.continuity = [
+      'Usar el primer cuadro aprobado del personaje como modelo de dibujo. Derivar los demás cuadros de sus poses clave y mantener cámara, proporciones, contorno, paleta por prenda y posición de los accesorios respecto al cuerpo.',
+      'Aplicar la variación de reposo elegida una sola vez para todo el paquete. Mover las articulaciones desde esa base. Conservar el contacto de la mano con el objeto y el del pie de apoyo con el suelo durante cada apoyo.',
+      'Dibujar las posiciones intermedias siguiendo el arco de cada extremidad. El pelo, la tela y las alas presentes acompañan al cuerpo con un pequeño retraso y vuelven a asentarse. Mantener los tiempos indicados para cada acción.'
+    ].join(' ');
+    artDirection.review += ' Reproducir cada bucle al menos tres veces a sus FPS y a tamaño de token. Revisar el paso del último cuadro al primero, las manos y los contornos. Comparar el final de fall, down y el inicio de rise superponiendo las celdas.';
+    const notes = [artDirection.continuity, artDirection.camera, artDirection.finish, artDirection.palette, artDirection.identity, basePose, artDirection.framing, artDirection.motion, artDirection.review, document.querySelector('#notes').value.trim()].filter(Boolean).join('\n');
     const timings = {idle:[6,6,true],run:[8,12,true],run_ne:[8,12,true],run_se:[8,12,true],fall:[6,10,false],down:[1,1,true],rise:[6,10,false],hurt:[10,8,false],
       idle_step:[8,8,false],idle_look:[10,8,false],idle_scratch:[12,8,false],idle_adjust:[10,8,false],hurt_guard:[10,8,false],idle_exhausted:[12,6,true]};
     if (topDown) Object.assign(timings, {
@@ -159,9 +165,26 @@
       down:'Vista elevada del personaje inconsciente, tendido de espaldas con brazos extendidos, ojos de inconsciencia y marcas de daño reconocibles a tamaño de token.',
       rise:'Partir de down. Apoyar una mano y una rodilla, levantar el torso y terminar en el primer cuadro de idle.'
     });
+    poses.run = 'Carrera lateral hacia la derecha, en el sitio.';
+    poses.run_ne ??= 'Carrera diagonal hacia el noreste, mostrando la espalda.';
+    poses.run_se ??= 'Carrera diagonal hacia el sureste, mostrando el frente.';
+    const stride = 'En ocho cuadros, alternar contacto, carga, paso y elevación primero con un pie y después con el otro. Mantener la misma fase entre direcciones. El cuadro 8 enlaza con el siguiente contacto del cuadro 1; mantener el centro de la celda estable.';
+    for (const name of Object.keys(poses).filter(name => name === 'run' || name.startsWith('run_'))) {
+      poses[name] += ' ' + stride;
+    }
+    poses.fall ??= 'Conservar la caída lateral: perder el apoyo, descender con el peso del cuerpo y asentarse en la pose de suelo.';
+    poses.down ??= 'Mantener inmóvil la pose de suelo aprobada, con idéntico encuadre al final de la caída.';
+    poses.rise ??= 'Desde la pose de suelo, tomar apoyo, elevar el torso, recuperar el equilibrio y terminar en el reposo aprobado.';
+    poses.fall += ' Copiar el cuadro de down como último cuadro de fall, incluidos su posición y márgenes.';
+    poses.rise += ' Reutilizar down como primer cuadro y el primer cuadro de idle como último.';
     poses.idle = basePose + ' Animar la respiración alrededor de esa pose y mantener los puntos de apoyo.';
     for (const facing of ['idle_n','idle_ne','idle_s']) {
       if (poses[facing]) poses[facing] += ' Proyectar la pose de idle en esta orientación, incluido el gesto de ambos brazos.';
+    }
+    for (const name of ['idle_look','idle_scratch','idle_adjust','idle_step','idle_n_look','idle_n_look_left','idle_ne_look','idle_ne_wave']) {
+      if (!poses[name]) continue;
+      const rest = name.startsWith('idle_ne_') ? 'idle_ne' : name.startsWith('idle_n_') ? 'idle_n' : 'idle';
+      poses[name] += ' Partir del primer cuadro de ' + rest + ', realizar el gesto con los apoyos estables y regresar a ese cuadro.';
     }
     poses.idle_scratch += ' Usar una mano disponible. Si ambas están ocupadas, sustituir por un gesto breve de cabeza.';
     poses.idle_adjust += ' Mantener los objetos sujetos y usar la mano disponible o un pequeño movimiento de hombros.';
