@@ -166,7 +166,7 @@
       idle_ne_look:'Desde idle_ne volver la cabeza hacia el observador y regresar a idle_ne.',
       idle_ne_wave:'Desde idle_ne mirar por encima del hombro, saludar brevemente y regresar a idle_ne. Adaptar el gesto a la anatomía.',
       idle_exhausted_n:'Respirar pesadamente de espaldas, con cabeza y hombros caídos.',
-      fall:'Mostrar impacto y retroceso en los dos primeros cuadros. Salir despedido en el tercero y llegar al suelo en el cuarto. Terminar en la pose down.',
+      fall:'Mostrar el impacto mirando en el sentido de la marcha durante los dos primeros cuadros. En la hoja base, inclinar y proyectar cabeza y hombros hacia la derecha en el tercero. Llegar al suelo en el cuarto con la cabeza a la derecha de las botas. Al mirar a la izquierda, reproducir el reflejo horizontal cuadro por cuadro, en el mismo orden. Terminar en down.',
       down:'Vista elevada del personaje inconsciente, tendido de espaldas con brazos extendidos, ojos de inconsciencia y marcas de daño reconocibles a tamaño de token.',
       rise:'Partir de down. Apoyar una mano y una rodilla, levantar el torso y terminar en el primer cuadro de idle.'
     });
@@ -207,6 +207,11 @@
         run:{N:'run_n',NE:'run_ne',E:'run',SE:'run_se',S:'run_s',SW:'run_se',W:'run',NW:'run_ne'},
         rest:{N:'idle_n',NE:'idle_ne',E:'idle',SE:'idle',S:'idle_s',SW:'idle',W:'idle',NW:'idle_ne'},
         mirrorX:['NW','W','SW'], rememberFacingOnStop:true
+      };
+      playback.knockdownFacing = {
+        captureAt:'incapacitated', source:'facingBeforeImpact', baseFacing:'right',
+        mirrorWhenFacing:'left', mirrorAxis:'x', keepFrameOrder:true,
+        keepFacingThrough:['fall','down','rise'], after:'returnToFacingIdle'
       };
       playback.horizontalStop = {
         event:'move-stop', from:'run', whenRest:'idle', directions:['E','W'], animation:'stop_e',
