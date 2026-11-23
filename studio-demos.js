@@ -9,13 +9,19 @@ function mountSpriteDemos() {
   const canvas = document.querySelector('#demo-stage');
   const ctx = canvas.getContext('2d');
   const idleCanvas = document.querySelector('#demo-idle');
-  const idleContext = idleCanvas.getContext('2d');
+  const idleContext = idleCanvas?.getContext('2d');
+  // A cached GitHub Pages document can still have the previous static preview.
+  const cachedStill = document.querySelector('#demo-still');
   const status = document.querySelector('#demo-status');
   const play = document.querySelector('#demo-play');
   const replay = document.querySelector('#demo-replay');
   const buttons = [...document.querySelectorAll('[data-demo]')];
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const cache = new Map();
+  for (const selector of ['#demo-title','#profile-note','#demo-manifest']) {
+    const obsolete = document.querySelector(selector);
+    if (obsolete) obsolete.hidden = true;
+  }
 
   let selection;
   let pack;
@@ -94,13 +100,15 @@ function mountSpriteDemos() {
       step.fadeOut ? Math.min(1, (step.seconds - time) / .24) : 1;
     drawPose(canvas, ctx, pose, showStatic ? .5 : position, alpha, .44);
 
-    const gesture = clips.idle_scratch;
-    const wait = 6;
-    const idleTime = gesture ? elapsed % (wait + gesture.frames.length / gesture.fps) : elapsed;
-    const restingClip = gesture && idleTime >= wait ? gesture : clips.idle;
-    const restingTime = restingClip === gesture ? idleTime - wait : idleTime;
-    const restingPose = restingClip.frames[Math.floor(restingTime * restingClip.fps) % restingClip.frames.length];
-    drawPose(idleCanvas, idleContext, restingPose, .5, 1, .92);
+    if (idleContext) {
+      const gesture = clips.idle_scratch;
+      const wait = 6;
+      const idleTime = gesture ? elapsed % (wait + gesture.frames.length / gesture.fps) : elapsed;
+      const restingClip = gesture && idleTime >= wait ? gesture : clips.idle;
+      const restingTime = restingClip === gesture ? idleTime - wait : idleTime;
+      const restingPose = restingClip.frames[Math.floor(restingTime * restingClip.fps) % restingClip.frames.length];
+      drawPose(idleCanvas, idleContext, restingPose, .5, 1, .92);
+    }
   }
 
   function animate(timestamp) {
@@ -121,12 +129,15 @@ function mountSpriteDemos() {
   }
 
   async function loadPack(url) {
-    const response = await fetch(url);
+    const response = await fetch(url, { cache: 'no-cache' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const manifest = await response.json();
-    const image = new Image();
-    image.src = new URL(manifest.atlas, url);
-    await image.decode();
+    const image = await new Promise((resolve, reject) => {
+      const atlas = new Image();
+      atlas.onload = () => resolve(atlas);
+      atlas.onerror = () => reject(new Error('La hoja de sprites no está disponible.'));
+      atlas.src = new URL(manifest.atlas, url);
+    });
     if (image.naturalWidth !== manifest.frame.width * manifest.columns ||
         image.naturalHeight !== manifest.frame.height * manifest.rows) {
       throw new Error('Las dimensiones de la hoja no coinciden con el manifiesto.');
@@ -143,11 +154,19 @@ function mountSpriteDemos() {
     selection = current;
     pack = null;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    idleContext.clearRect(0, 0, idleCanvas.width, idleCanvas.height);
+    if (idleContext) {
+      idleContext.clearRect(0, 0, idleCanvas.width, idleCanvas.height);
+      idleCanvas.setAttribute('aria-label', `Animación de ${name} en reposo`);
+      idleCanvas.style.backgroundImage = `url("${stillUrl}")`;
+    }
+    if (cachedStill) {
+      cachedStill.alt = `Sprite de ${name} en reposo`;
+      cachedStill.src = stillUrl;
+      cachedStill.classList.toggle('pixel', profile !== 'topdown_hd');
+    }
     status.hidden = false;
     status.textContent = 'Cargando animación…';
     canvas.setAttribute('aria-label', `Animación de ${name} sobre una cuadrícula`);
-    idleCanvas.setAttribute('aria-label', `Animación de ${name} en reposo`);
     play.disabled = replay.disabled = true;
     buttons.forEach(button => button.setAttribute('aria-pressed', button.dataset.demo === profile));
 
@@ -160,6 +179,7 @@ function mountSpriteDemos() {
       sceneDuration = scenes.reduce((sum, step) => sum + step.seconds, 0);
       elapsed = 0;
       status.hidden = true;
+      if (idleCanvas) idleCanvas.style.backgroundImage = 'none';
       play.disabled = replay.disabled = false;
       setPaused(reducedMotion.matches);
     } catch (error) {
@@ -170,7 +190,7 @@ function mountSpriteDemos() {
 
   const resize = new ResizeObserver(render);
   resize.observe(canvas);
-  resize.observe(idleCanvas);
+  if (idleCanvas) resize.observe(idleCanvas);
   buttons.forEach(button => button.addEventListener('click', () => select(button.dataset.demo)));
   play.addEventListener('click', () => setPaused(!paused));
   replay.addEventListener('click', () => {
