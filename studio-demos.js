@@ -1,18 +1,16 @@
 'use strict';
 
-function mountSpriteDemos(notes) {
+function mountSpriteDemos() {
   const examples = {
     pixel_legacy: { id: 'javlight', name: 'Javlight' },
     topdown_pixel: { id: 'lory', name: 'Lory Kzoa' },
-    topdown_hd: { id: 'cecille', name: 'Cecille Von Trotesch' },
+    topdown_hd: { id: 'cecille', name: 'Cecille Von Trotesch', manifest: 'cecille-hd-revisado' },
   };
   const canvas = document.querySelector('#demo-stage');
   const ctx = canvas.getContext('2d');
-  const still = document.querySelector('#demo-still');
-  const title = document.querySelector('#demo-title');
+  const idleCanvas = document.querySelector('#demo-idle');
+  const idleContext = idleCanvas.getContext('2d');
   const status = document.querySelector('#demo-status');
-  const profileNote = document.querySelector('#profile-note');
-  const manifestLink = document.querySelector('#demo-manifest');
   const play = document.querySelector('#demo-play');
   const replay = document.querySelector('#demo-replay');
   const buttons = [...document.querySelectorAll('[data-demo]')];
@@ -22,6 +20,7 @@ function mountSpriteDemos(notes) {
   let selection;
   let pack;
   let scenes;
+  let sceneDuration;
   let elapsed = 0;
   let lastTick;
   let animationId;
@@ -34,42 +33,54 @@ function mountSpriteDemos(notes) {
       { clip: clips.stop_e ? 'stop_e' : 'run', seconds: .42, from: .46, to: .5, slowdown: true },
       { clip: 'idle', seconds: .85 },
     ];
+    const rest = clips.idle_scratch ? [{ clip: 'idle_scratch' }] : [];
     return [
-      { label: 'Avance, reposo y caída', steps: [
+      [
         ...moving, { clip: 'fall' }, { clip: 'down', seconds: 1.1 },
         { clip: 'rise' }, { clip: 'idle', seconds: .9, fadeOut: true },
-      ] },
-      { label: 'Avance y reposo', steps: [
-        ...moving, { clip: 'idle', seconds: 1.3, fadeOut: true },
-      ] },
-      { label: 'Avance y reacción al daño', steps: [
+      ],
+      [
+        ...moving, ...rest, { clip: 'idle', seconds: 1.3, fadeOut: true },
+      ],
+      [
         ...moving, { clip: 'hurt' }, { clip: 'idle', seconds: 1.25, fadeOut: true },
-      ] },
-    ].flatMap(scene => scene.steps.map(step => ({
-      ...step, label: scene.label,
+      ],
+    ].flat().map(step => ({
+      ...step,
       seconds: step.seconds ?? clips[step.clip].frames.length / clips[step.clip].fps,
-    })));
+    }));
   }
 
-  function render() {
-    if (!pack) return;
-    const { frame, clips, columns, pixelArt, image } = pack;
-    const bounds = canvas.getBoundingClientRect();
+  function drawPose(surface, context, pose, position, alpha, fitWidth) {
+    const { frame, columns, pixelArt, image } = pack;
+    const bounds = surface.getBoundingClientRect();
     if (!bounds.width || !bounds.height) return;
     const dpr = window.devicePixelRatio || 1;
     const width = Math.round(bounds.width * dpr);
     const height = Math.round(bounds.height * dpr);
-    if (canvas.width !== width) canvas.width = width;
-    if (canvas.height !== height) canvas.height = height;
-    ctx.clearRect(0, 0, width, height);
+    if (surface.width !== width) surface.width = width;
+    if (surface.height !== height) surface.height = height;
+    context.clearRect(0, 0, width, height);
+    const size = Math.min(height * (pixelArt ? .76 : 1.14) / frame.height, width * fitWidth / frame.width);
+    const drawWidth = frame.width * size;
+    const drawHeight = frame.height * size;
+    context.imageSmoothingEnabled = !pixelArt;
+    context.globalAlpha = alpha;
+    context.drawImage(image,
+      pose % columns * frame.width, Math.floor(pose / columns) * frame.height, frame.width, frame.height,
+      width * position - drawWidth / 2, height * .83 - frame.baseline * size, drawWidth, drawHeight);
+    context.globalAlpha = 1;
+  }
 
-    const duration = scenes.reduce((sum, step) => sum + step.seconds, 0);
-    let time = elapsed % duration;
+  function render() {
+    if (!pack) return;
+    const { clips } = pack;
+    let time = elapsed % sceneDuration;
     const step = scenes.find(candidate => {
       if (time < candidate.seconds) return true;
       time -= candidate.seconds;
       return false;
-    });
+    }) ?? scenes[0];
     const progress = time / step.seconds;
     const clip = clips[step.clip];
     const frameIndex = step.clip === 'stop_e'
@@ -78,20 +89,18 @@ function mountSpriteDemos(notes) {
     const pose = clip.frames[frameIndex % clip.frames.length];
     const distance = step.slowdown ? 1 - (1 - progress) ** 2 : progress;
     const position = step.from === undefined ? .5 : step.from + (step.to - step.from) * distance;
-    const size = Math.min(height * (pixelArt ? .76 : 1.14) / frame.height, width * .44 / frame.width);
-    const drawWidth = frame.width * size;
-    const drawHeight = frame.height * size;
-    const ground = height * .83;
-
-    ctx.imageSmoothingEnabled = !pixelArt;
     const showStatic = paused && elapsed === 0;
-    ctx.globalAlpha = showStatic ? 1 : step.fadeIn ? Math.min(1, time / .18) :
+    const alpha = showStatic ? 1 : step.fadeIn ? Math.min(1, time / .18) :
       step.fadeOut ? Math.min(1, (step.seconds - time) / .24) : 1;
-    ctx.drawImage(image,
-      pose % columns * frame.width, Math.floor(pose / columns) * frame.height, frame.width, frame.height,
-      width * (showStatic ? .5 : position) - drawWidth / 2, ground - frame.baseline * size, drawWidth, drawHeight);
-    ctx.globalAlpha = 1;
-    if (status.textContent !== step.label) status.textContent = step.label;
+    drawPose(canvas, ctx, pose, showStatic ? .5 : position, alpha, .44);
+
+    const gesture = clips.idle_scratch;
+    const wait = 6;
+    const idleTime = gesture ? elapsed % (wait + gesture.frames.length / gesture.fps) : elapsed;
+    const restingClip = gesture && idleTime >= wait ? gesture : clips.idle;
+    const restingTime = restingClip === gesture ? idleTime - wait : idleTime;
+    const restingPose = restingClip.frames[Math.floor(restingTime * restingClip.fps) % restingClip.frames.length];
+    drawPose(idleCanvas, idleContext, restingPose, .5, 1, .92);
   }
 
   function animate(timestamp) {
@@ -127,21 +136,18 @@ function mountSpriteDemos(notes) {
 
   async function select(profile) {
     cancelAnimationFrame(animationId);
-    const { id, name } = examples[profile];
-    const manifestUrl = new URL(`demos/${id}.json`, document.baseURI).href;
+    const { id, name, manifest = id } = examples[profile];
+    const manifestUrl = new URL(`demos/${manifest}.json`, document.baseURI).href;
     const stillUrl = new URL(`${id}-reposo.webp`, manifestUrl).href;
     const current = { profile, stillUrl };
     selection = current;
     pack = null;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    title.textContent = name;
-    profileNote.textContent = notes[profile];
+    idleContext.clearRect(0, 0, idleCanvas.width, idleCanvas.height);
+    status.hidden = false;
     status.textContent = 'Cargando animación…';
     canvas.setAttribute('aria-label', `Animación de ${name} sobre una cuadrícula`);
-    still.alt = `Sprite de ${name} en reposo`;
-    still.src = stillUrl;
-    still.classList.toggle('pixel', profile !== 'topdown_hd');
-    manifestLink.href = manifestUrl;
+    idleCanvas.setAttribute('aria-label', `Animación de ${name} en reposo`);
     play.disabled = replay.disabled = true;
     buttons.forEach(button => button.setAttribute('aria-pressed', button.dataset.demo === profile));
 
@@ -151,7 +157,9 @@ function mountSpriteDemos(notes) {
       if (selection !== current) return;
       pack = loaded;
       scenes = makeScenes(pack.clips);
+      sceneDuration = scenes.reduce((sum, step) => sum + step.seconds, 0);
       elapsed = 0;
+      status.hidden = true;
       play.disabled = replay.disabled = false;
       setPaused(reducedMotion.matches);
     } catch (error) {
@@ -160,7 +168,9 @@ function mountSpriteDemos(notes) {
     }
   }
 
-  new ResizeObserver(render).observe(canvas);
+  const resize = new ResizeObserver(render);
+  resize.observe(canvas);
+  resize.observe(idleCanvas);
   buttons.forEach(button => button.addEventListener('click', () => select(button.dataset.demo)));
   play.addEventListener('click', () => setPaused(!paused));
   replay.addEventListener('click', () => {

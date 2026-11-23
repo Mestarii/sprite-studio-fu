@@ -2,58 +2,54 @@
 <html lang="es">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sprite Studio FU</title>
+<title>Sprite Studio</title>
 <style>
   :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #17121f; color: #f2e9ff; }
   main { max-width: 760px; margin: 2rem auto; padding: 1.5rem; background: #271d34; border: 1px solid #72569a; border-radius: 12px; }
   label { display:block; margin-top:1rem; font-weight:700; } input, textarea, button { width:100%; box-sizing:border-box; margin-top:.35rem; padding:.65rem; border-radius:6px; border:1px solid #8a70b5; background:#17121f; color:inherit; font:inherit; }
   textarea { min-height:7rem; } button { background:#7f56b3; font-weight:700; cursor:pointer; }
   #preview { display:none; max-width:240px; max-height:300px; margin-top:1rem; }
-  .profile-note { margin:.65rem 0 0; padding:.75rem; border-left:3px solid #33d6cf; background:#1d2836; color:#d9f8f5; }
   small { color:#d4c4e9; }
+  .field-hint { display:block; color:#b9b6c0; margin-top:.4rem; }
   .examples { margin-top:1.5rem; padding-top:1rem; border-top:1px solid #72569a; }
   .example-buttons { display:flex; gap:.6rem; flex-wrap:wrap; margin:.7rem 0; }
   .example-buttons button { width:auto; margin:0; background:#302541; }
   .example-buttons button[aria-pressed="true"] { background:#146b6a; border-color:#71f0e4; }
   button:focus-visible, a:focus-visible { outline:2px solid #f7db9a; outline-offset:3px; }
   .demo-panel { padding:1rem; background:#152830; border:1px solid #3d7b7c; border-radius:8px; }
-  .demo-panel h3 { margin:.1rem 0 .35rem; }
-  .demo-views { display:grid; grid-template-columns:minmax(0,1fr) minmax(108px,28%); gap:.75rem; margin-top:1rem; }
+  .demo-views { display:grid; grid-template-columns:minmax(0,1fr) minmax(108px,28%); gap:.75rem; }
   .demo-views figure { margin:0; min-width:0; }
   .demo-views figcaption { margin-bottom:.4rem; }
-  .demo-stage, .demo-still { height:220px; width:100%; display:block; border-radius:7px; }
+  .demo-stage, .demo-idle { height:220px; width:100%; display:block; border-radius:7px; }
   .demo-stage { background-color:#29484b; background-image:linear-gradient(#ffffff13 1px,transparent 1px),linear-gradient(90deg,#ffffff13 1px,transparent 1px); background-size:42px 42px; }
-  .demo-still { background:#1d3941; object-fit:contain; }
-  .demo-still.pixel { image-rendering:pixelated; }
+  .demo-idle { background:#1d3941; }
   .demo-controls { display:flex; align-items:center; flex-wrap:wrap; gap:.6rem; margin-top:.7rem; }
   .demo-controls button { width:auto; margin:0; background:#234448; }
   .demo-controls button:disabled { opacity:.55; cursor:default; }
-  .demo-controls a { color:#a7eae5; font-size:.875rem; }
   #demo-status { min-height:1.4em; margin:.55rem 0 0; }
   @media (max-width:520px) {
     main { margin:.5rem auto; padding:.8rem; }
     .demo-views { grid-template-columns:minmax(0,1fr); }
     .demo-stage { height:190px; }
-    .demo-still { height:155px; }
+    .demo-idle { height:155px; }
   }
 </style>
 <main>
-  <h1>Sprite Studio FU</h1>
+  <h1>Sprite Studio</h1>
   <p>Prepara una ficha de producción para convertir una ilustración normal en un paquete de sprites animados para Foundry.</p>
   <label>Ilustración original <input id="reference" type="file" accept="image/*"></label>
   <img id="preview" alt="Vista previa de referencia">
-  <label>Identificador <input id="id" value="character_001" pattern="[a-z0-9_]+"></label>
+  <label for="id">Identificador</label>
+  <input id="id" placeholder="nombre_del_personaje" pattern="[a-z0-9_]+" aria-describedby="id-hint" required>
+  <small id="id-hint" class="field-hint">Aquí pon el nombre de tu personaje en minúsculas, sin espacios. Puedes usar _.</small>
   <section class="examples" aria-labelledby="examples-title">
     <h2 id="examples-title">Perfil visual</h2>
-    <p>Selecciona el estilo de tu solicitud y prueba su ejemplo en movimiento.</p>
     <div class="example-buttons" role="group" aria-label="Perfil visual">
       <button type="button" data-demo="pixel_legacy" aria-pressed="false">Sprite Pixel Art 2D</button>
       <button type="button" data-demo="topdown_pixel" aria-pressed="false">TOP-DOWN Token Pixel</button>
       <button type="button" data-demo="topdown_hd" aria-pressed="true">TOP-DOWN Token HD</button>
     </div>
-    <p id="profile-note" class="profile-note"></p>
     <div class="demo-panel">
-      <h3 id="demo-title"></h3>
       <div class="demo-views">
         <figure>
           <figcaption>Prueba en movimiento</figcaption>
@@ -61,33 +57,30 @@
         </figure>
         <figure>
           <figcaption>Sprite en reposo</figcaption>
-          <img id="demo-still" class="demo-still" alt="">
+          <canvas id="demo-idle" class="demo-idle" width="220" height="220" role="img"></canvas>
         </figure>
       </div>
-      <p id="demo-status"></p>
+      <p id="demo-status" role="status" hidden></p>
       <div class="demo-controls">
         <button id="demo-play" type="button" disabled>Pausar</button>
         <button id="demo-replay" type="button" disabled>Reiniciar</button>
-        <a id="demo-manifest">Ver manifiesto de la muestra</a>
       </div>
     </div>
   </section>
   <label>Rasgos que no pueden cambiar <textarea id="identity">Conservar la silueta, las proporciones, los colores, el vestuario y los accesorios presentes en la ilustración del personaje.</textarea></label>
   <details><summary>Gestos, daño y reposo según la vida</summary>
-    <p>El personaje respira en reposo. Cada 8–16 segundos puede mirar alrededor, rascarse, acomodarse una prenda o cambiar el apoyo de los pies. Al recibir daño alterna entre dos reacciones de 1,25 segundos. Por debajo de la mitad de su vida, descansa encorvado y con respiración pesada.</p>
-    <small>La ficha incluye los dibujos y las reglas de reproducción que debe implementar el módulo del juego.</small>
+    <p>El personaje respira en reposo y puede mirar alrededor, rascarse, acomodarse una prenda o cambiar el apoyo de los pies. En el perfil HD, los gestos duran de 2 a 2,5 segundos y se activan tras 6–14 segundos de reposo. Por debajo del 50 % de HP, aparece el cansancio. A 0 HP se reproduce la caída.</p>
   </details>
   <label>Notas opcionales <textarea id="notes" placeholder="Dirección preferida, detalles de vestuario, personalidad visual..."></textarea></label>
   <button id="export">Descargar solicitud de generación</button>
   <small>Tu ilustración se queda en el navegador. La descarga contiene la solicitud JSON para producir los sprites en el perfil elegido.</small>
 </main>
-<script src="studio-demos.js"></script>
+<script src="studio-demos.js?v=reposo-hd"></script>
 <script>
   const reference = document.querySelector('#reference'), preview = document.querySelector('#preview');
   reference.onchange = () => { const file = reference.files[0]; if (!file) return; preview.src = URL.createObjectURL(file); preview.style.display = 'block'; };
   const profiles = {
     pixel_legacy: {
-      note: 'Sprite de cuerpo entero en pixel art 2D de 64×96.',
       artDirection: {
         profile: 'fabula-pixel-discreto-v1',
         finish: 'Pixel art discreto de cuerpo entero. Usar contornos finos y legibles, pliegues en masas amplias y detalles selectivos. Evitar el tramado y el ruido de píxeles.',
@@ -100,7 +93,6 @@
       output: { frame:'64x96', imageFormat:'png', transparent:true, sheetLayout:'Una fila horizontal por animación', anchor:{x:0.5,y:1}, baseline:90 }
     },
     topdown_pixel: {
-      note: 'Token de 64×96 en pixel art, visto desde arriba en tres cuartos.',
       artDirection: {
         profile: 'fabula-top-down-token-pixel-v1',
         finish: 'Pixel art cenital 3/4 legible a tamaño de token. Usar contornos limpios, volúmenes simples y detalles selectivos; no usar desenfoque ni texturas fuera de escala.',
@@ -113,22 +105,33 @@
       output: { frame:'64x96', imageFormat:'png', transparent:true, sheetLayout:'Una fila horizontal por animación', anchor:{x:0.5,y:1}, baseline:90 }
     },
     topdown_hd: {
-      note: 'Token ilustrado de 512×512, con vista cenital en tres cuartos y transparencia WebP.',
       artDirection: {
         profile: 'fabula-top-down-token-hd-v1',
         finish: 'Ilustración digital 2D HD nítida, no pixel art. Vista cenital 3/4 propia de un token de RPG: contorno fino y limpio, formas claras a escala pequeña, luz cenital suave, detalle selectivo y sin bloques de píxeles ni desenfoque.',
-        palette: 'Extraer la paleta de la imagen original y crear una paleta maestra aprobada. Todas las animaciones, direcciones, heridas y accesorios usan exactamente esa paleta y la misma iluminación.',
+        palette: 'Aprobar primero una pose maestra. Mantener su paleta, luz, contraste y saturación constantes en cada orientación y gesto. Ajustar los cuadros de gesto con la tela del reposo como referencia, preservando las facciones y los materiales.',
         identity: 'Preservar rostro, peinado, cuerpo, vestuario, arma, símbolos y accesorios de la ilustración entregada. La referencia define identidad; este perfil define únicamente el estilo unificado.',
         framing: 'Frames cuadrados de 512×512 con alfa real en WebP. Cámara cenital 3/4 constante; margen de seguridad mínimo del 12% en los cuatro lados. Ninguna parte de cabello, capa, arma o sombra puede tocar el borde. Centro de masa centrado y pies/base en el 72% vertical.',
-        motion: 'Crear direcciones independientes N, NE, E, SE, S, SW, W y NW; no usar espejos para dirección de cámara. Reposo de 4 frames con respiración leve; carrera de 8 frames por dirección, con apoyo de pies, orientación y sombras distinguibles; daño de 4 frames con pausa legible; caída, inconsciencia y levantarse como secuencia continua. El primer y último cuadro de cada bucle deben cerrar sin saltos.',
-        review: 'Revisar cada frame sobre fondo claro y oscuro a 100%, 50% y tamaño final de token. Rechazar cualquier recorte, halo, cambio de escala, deriva de rostro/paleta o dirección ambigua.'
+        anatomy: {
+          method: 'Anotar los puntos anatómicos en las poses aprobadas antes de animar. Marcar los puntos ocultos por ropa, pelo o ángulo. Adaptar el esquema a la anatomía del personaje.',
+          landmarks: ['cabeza','hombros','codos','manos','torso','cadera','rodillas','pies'],
+          validation: 'Una silueta completa por cuadro. Conservar la cantidad de extremidades y la conexión hombro–codo–mano y cadera–rodilla–pie. Revisar cada pose dibujada para aprobar brazos y manos.',
+        },
+        motion: 'Preparar carrera en ocho sentidos y mostrar la espalda al correr hacia el norte. Crear reposo direccional con respiración y pies apoyados. Construir cada gesto con poses completas y sucesivas de anticipación, acción y regreso. Evitar interpolación óptica, fundidos entre poses o superposición de extremidades. Reproducir gestos durante 2–2,5 s tras 6–14 s de quietud, incluidos gestos de espalda y de fatiga.',
+        review: 'Revisar cuadro a cuadro y a escala del tablero. Comprobar que los gestos conservan anatomía, anclaje, silueta, luz y detalle. Priorizar la claridad y el peso de las hojas al elegir cuántos cuadros exportar.'
       },
-      output: { frame:'512x512', imageFormat:'webp', transparent:true, webp:{quality:82,alpha:true,targetMaxKB:220,losslessFor:'idle and key poses'}, sheetLayout:'Una fila horizontal por animación', anchor:{x:0.5,y:0.72}, baseline:369, directions:['n','ne','e','se','s','sw','w','nw'] }
+      output: { frame:'512x512', imageFormat:'webp', transparent:true, webp:{quality:89,alpha:true}, sheetLayout:'Una hoja por animación, de izquierda a derecha y de arriba abajo. Máximo 8 columnas; declarar columns si hay más de una fila.', maxColumns:8, textureSampling:'linear', anchor:{x:0.5,y:369/512}, baseline:369, directions:['n','ne','e','se','s','sw','w','nw'] }
     }
   };
-  const demoSelector = mountSpriteDemos(
-    Object.fromEntries(Object.entries(profiles).map(([key, profile]) => [key, profile.note]))
-  );
+  const demoSelector = mountSpriteDemos();
+  const hdGestures = {
+    idle:['idle_look','idle_scratch','idle_adjust','idle_step'],
+    idle_se:['idle_look_se','idle_scratch_se','idle_adjust_se','idle_step_se'],
+    idle_s:['idle_look_s','idle_step_s'],
+    idle_n:['idle_n_look','idle_n_look_left','idle_n_adjust'],
+    idle_ne:['idle_ne_look','idle_ne_adjust'],
+    idle_exhausted:['idle_exhausted_pain','idle_exhausted_sigh'],
+    idle_exhausted_n:['idle_exhausted_n_pain','idle_exhausted_n_sigh'],
+  };
   document.querySelector('#export').onclick = () => {
     const id = document.querySelector('#id').value.trim();
     if (!/^[a-z0-9_]+$/.test(id)) return alert('Usa minúsculas, números y guion bajo en el identificador.');
@@ -136,22 +139,39 @@
     const selectedProfile = profiles[profile];
     const artDirection = { ...selectedProfile.artDirection, styleSample: { src: stillUrl } };
     const notes = [artDirection.finish, artDirection.palette, artDirection.identity, artDirection.framing, artDirection.motion, document.querySelector('#notes').value.trim()].filter(Boolean).join('\n');
-    const timings = profile === 'topdown_hd'
-      ? {idle:[4,6,true],run_n:[8,12,true],run_ne:[8,12,true],run_e:[8,12,true],run_se:[8,12,true],run_s:[8,12,true],run_sw:[8,12,true],run_w:[8,12,true],run_nw:[8,12,true],fall:[6,10,false],down:[1,1,true],rise:[6,10,false],hurt:[4,10,false]}
+    const isHD = profile === 'topdown_hd';
+    const timings = isHD
+      ? {
+        ...Object.fromEntries(Object.keys(hdGestures).map(name => [name,[16,6.4,true]])),
+        ...Object.fromEntries(Object.values(hdGestures).flat().map(name => [name,[16,name.includes('_step') ? 8 : 6.4,false]])),
+        run_n:[8,12,true],run_ne:[8,12,true],run_e:[8,12,true],run_se:[8,12,true],run_s:[8,12,true],
+        run_sw:[8,12,true],run_w:[8,12,true],run_nw:[8,12,true],
+        fall:[6,10,false],down:[1,1,true],rise:[6,10,false],hurt:[4,10,false],hurt_guard:[6,10,false],
+      }
       : {idle:[6,6,true],run:[8,12,true],run_ne:[8,12,true],run_se:[8,12,true],fall:[6,10,false],down:[1,1,true],rise:[6,10,false],hurt:[10,8,false],idle_step:[8,8,false],idle_look:[10,8,false],idle_scratch:[12,8,false],idle_adjust:[10,8,false],hurt_guard:[10,8,false],idle_exhausted:[12,6,true]};
-    const animationSpecs = Object.fromEntries(Object.entries(timings).map(([name,[frames,fps,loop]]) => [name,{frames,fps,loop}]));
+    const animationSpecs = Object.fromEntries(Object.entries(timings).map(([name,[frames,fps,loop]]) => [
+      name, isHD && frames > 8 ? {frames,fps,loop,columns:8} : {frames,fps,loop}
+    ]));
     const poses = {
-      idle_step:'Usar el reposo aprobado como base. Mantener un pie plantado, levantar ligeramente el otro y volver a la misma pose. Ocho cuadros. Preferir WebP sin pérdida con transparencia.',
+      idle_step:'Usar el reposo aprobado como base. Mantener un pie plantado, levantar ligeramente el otro y volver a la misma pose.',
       idle_look:'Girar primero los ojos, después la cabeza, sostener la mirada un instante y volver al frente. Pies quietos.',
       idle_scratch:'Llevar una mano a la sien, rascarse dos veces con un movimiento pequeño y bajar la mano. Adaptar el gesto a la anatomía del personaje.',
       idle_adjust:'Acomodar un elemento que exista en la ilustración, o estirar los hombros si carece de ropa o equipo.',
-      hurt:'Golpe de frente: sobresalto, hombros hacia atrás y retroceso corto. Leer el impacto en los cuadros 3–5 y soltar la tensión al final.',
+      hurt:'Golpe de frente: sobresalto, hombros hacia atrás y retroceso corto. Marcar el impacto en los cuadros centrales y soltar la tensión al final.',
       hurt_guard:'Golpe al costado: encogerse, proteger el flanco y cargar el peso sobre la pierna opuesta. Sostener la defensa en los cuadros 4–6 y recuperar el equilibrio.',
       idle_exhausted:'Hombros caídos, cabeza baja, mano cerca del costado y respiración pesada con pausa al exhalar. Mostrar la herida por la postura; conservar paleta, facciones y punto de apoyo. Cerrar el bucle sin salto.'
     };
     for (const [name,pose] of Object.entries(poses)) if (animationSpecs[name]) animationSpecs[name].pose = pose;
+    if (isHD) {
+      for (const view of ['n','ne']) animationSpecs[`idle_${view}_look`].pose = 'Conservar el cuerpo de espaldas. Girar la cabeza para mirar por encima del hombro y regresar a la pose de partida.';
+      animationSpecs.idle_n_look_left.pose = 'Mirar por encima del hombro izquierdo con hombros y pies en su dirección original.';
+      for (const suffix of ['', '_n']) {
+        animationSpecs[`idle_exhausted${suffix}_pain`].pose = 'Inclinar ligeramente el torso y llevar una mano al costado. Volver al reposo fatigado.';
+        animationSpecs[`idle_exhausted${suffix}_sigh`].pose = 'Respirar hondo, soltar los hombros y volver al ritmo habitual.';
+      }
+    }
     const playback = {
-      idleGestures:{base:'idle', variants:['idle_look','idle_scratch','idle_adjust','idle_step'], delaySeconds:[8,16], selection:'randomExceptLast', playOnce:true, resetDelayOnActivity:true, interruptOn:['move-start','damage','incapacitated','idle_exhausted']},
+      idleGestures:{base:'idle', variants:['idle_look','idle_scratch','idle_adjust','idle_step'], delaySeconds:isHD ? [6,14] : [8,16], ...(isHD ? {byAnimation:hdGestures} : {}), selection:'randomExceptLast', playOnce:true, resetDelayOnActivity:true, interruptOn:['move-start','damage','incapacitated','idle_exhausted']},
       damage:{variants:['hurt','hurt_guard'], selection:'alternatePerTokenPerHit', after:'resolveCurrentState', onIncapacitated:'fall'},
       restingHealth:{current:'hp', maximum:'maxHp', requirePositiveMaximum:true, exhaustedWhen:'0 < hp && 2 * hp < maxHp', exhausted:'idle_exhausted', normal:'idle', onZero:'fall_then_down', unknownMaximum:'idle', reevaluateOn:['tokenReady','hpChanged','maxHpChanged','move-stop','damageComplete','riseComplete']}
     };
