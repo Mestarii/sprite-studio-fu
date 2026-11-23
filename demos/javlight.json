@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "character": "Javlight",
+  "frame": {
+    "width": 64,
+    "height": 96,
+    "baseline": 90
+  },
+  "columns": 8,
+  "rows": 4,
+  "pixelArt": true,
+  "atlas": "javlight-atlas.webp",
+  "still": "javlight-reposo.webp",
+  "clips": {
+    "idle": {
+      "fps": 6,
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "run": {
+      "fps": 12,
+      "frames": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13
+      ]
+    },
+    "hurt": {
+      "fps": 10,
+      "frames": [
+        14,
+        15,
+        16,
+        17
+      ]
+    },
+    "fall": {
+      "fps": 10,
+      "frames": [
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ]
+    },
+    "down": {
+      "fps": 1,
+      "frames": [
+        24
+      ]
+    },
+    "rise": {
+      "fps": 10,
+      "frames": [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30
+      ]
+    }
+  }
+}
+

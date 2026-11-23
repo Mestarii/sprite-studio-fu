@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "character": "Cecille Von Trotesch",
+  "frame": {
+    "width": 512,
+    "height": 512,
+    "baseline": 369
+  },
+  "columns": 3,
+  "rows": 3,
+  "pixelArt": false,
+  "atlas": "cecille-atlas.webp",
+  "still": "cecille-reposo.webp",
+  "clips": {
+    "idle": {
+      "fps": 1,
+      "frames": [
+        0
+      ]
+    },
+    "run": {
+      "fps": 9,
+      "frames": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "hurt": {
+      "fps": 4,
+      "frames": [
+        5,
+        0
+      ]
+    },
+    "fall": {
+      "fps": 6,
+      "frames": [
+        5,
+        6,
+        7,
+        8
+      ]
+    },
+    "down": {
+      "fps": 1,
+      "frames": [
+        8
+      ]
+    },
+    "rise": {
+      "fps": 6,
+      "frames": [
+        8,
+        7,
+        6,
+        0
+      ]
+    }
+  }
+}
+
