@@ -11,6 +11,23 @@
   .profile-note { margin:.65rem 0 0; padding:.75rem; border-left:3px solid #33d6cf; background:#1d2836; color:#d9f8f5; }
   #style-sample { display:none !important; }
   small { color:#d4c4e9; }
+  .examples { margin-top:1.5rem; padding-top:1rem; border-top:1px solid #72569a; }
+  .example-buttons { display:flex; gap:.6rem; flex-wrap:wrap; margin:.7rem 0; }
+  .example-buttons button { width:auto; margin:0; background:#302541; }
+  .example-buttons button.active { background:#168a88; outline:2px solid #71f0e4; }
+  .demo-panel { padding:1rem; background:#152830; border:1px solid #3d7b7c; border-radius:8px; }
+  .demo-panel h3 { margin:.1rem 0 .35rem; }
+  .demo-stage { height:230px; overflow:hidden; position:relative; border-radius:7px; background-color:#29484b; background-image:linear-gradient(#ffffff13 1px,transparent 1px),linear-gradient(90deg,#ffffff13 1px,transparent 1px); background-size:42px 42px; }
+  .demo-stage::after { content:''; position:absolute; top:72%; left:0; right:0; border-top:1px dashed #f3d77c99; }
+  .demo-motion { position:absolute; left:-100px; top:-2px; animation:demo-move 4s linear infinite; }
+  .demo-token { background-repeat:no-repeat; filter:drop-shadow(0 8px 5px #091112aa); }
+  .demo-token.pixel { width:128px; height:192px; background-size:800% 100%; animation:pixel-frames .75s steps(8,end) infinite; image-rendering:pixelated; }
+  .demo-token.witch { background-image:url('pixel-2d-witch-run.png'); }
+  .demo-token.javlight-pixel { background-image:url('topdown-token-pixel-javlight-run.png'); }
+  .demo-token.hd { width:190px; height:190px; background-image:url('javlight-topdown-hd-run-preview.webp'); background-size:200% 200%; animation:hd-frames .48s steps(1,end) infinite; }
+  @keyframes demo-move { from { transform:translateX(0); } to { transform:translateX(860px); } }
+  @keyframes pixel-frames { from { background-position:0 0; } to { background-position:100% 0; } }
+  @keyframes hd-frames { 0%,24.9% { background-position:0 0; } 25%,49.9% { background-position:100% 0; } 50%,74.9% { background-position:0 100%; } 75%,100% { background-position:100% 100%; } }
 </style>
 <main>
   <h1>Fabula Sprite Studio</h1>
@@ -21,11 +38,25 @@
   <label>Perfil visual
     <select id="profile">
       <option value="pixel_legacy">1. Pixel Art clásico 64×96</option>
-      <option value="illustrated_hd">2. Ilustración HD lateral</option>
+      <option value="topdown_pixel">2. TOP-DOWN Token Pixel</option>
       <option value="topdown_hd" selected>3. TOP-DOWN Token HD — recomendado</option>
     </select>
   </label>
   <p id="profile-note" class="profile-note"></p>
+  <section class="examples" aria-labelledby="examples-title">
+    <h2 id="examples-title">Ejemplos de movimiento</h2>
+    <p>Elige un perfil para ver su animación de carrera y preparar la misma opción para la solicitud.</p>
+    <div class="example-buttons" role="group" aria-label="Ejemplos de animación">
+      <button type="button" data-demo="pixel_2d">1. Sprite Pixel Art 2D</button>
+      <button type="button" data-demo="topdown_pixel">2. TOP-DOWN Token Pixel</button>
+      <button type="button" class="active" data-demo="topdown_hd">3. TOP-DOWN Token HD</button>
+    </div>
+    <div class="demo-panel">
+      <h3 id="demo-title"></h3>
+      <p id="demo-copy"></p>
+      <div class="demo-stage" aria-live="polite"><div class="demo-motion"><div id="demo-token" class="demo-token"></div></div></div>
+    </div>
+  </section>
   <label>Rasgos que no pueden cambiar <textarea id="identity">Conservar la silueta, las proporciones, los colores, el vestuario y los accesorios presentes en la ilustración del personaje.</textarea></label>
   <p>Muestra de acabado para el perfil TOP-DOWN Token HD</p>
   <img id="topdown-hd-sample" style="display:block;width:320px;max-width:100%;height:auto" width="320" height="320" alt="Muestra de acabado TOP-DOWN Token HD: ilustración nítida, vista cenital 3/4 y sin píxeles." src="top-down-token-hd-sample.webp">
@@ -56,18 +87,18 @@
       },
       output: { frame:'64x96', imageFormat:'png', transparent:true, sheetLayout:'Una fila horizontal por animación', anchor:{x:0.5,y:1}, baseline:90 }
     },
-    illustrated_hd: {
-      note: 'Ilustración HD nítida de cuerpo completo, lateral y sin píxeles visibles. Usa WebP transparente.',
+    topdown_pixel: {
+      note: 'TOP-DOWN Token Pixel: pixel art 64×96 pensado para el reproductor actual de Foundry.',
       artDirection: {
-        profile: 'fabula-illustrated-hd-v1',
-        finish: 'Ilustración digital 2D nítida, no pixel art: bordes limpios, materiales legibles, luz suave y sombreado controlado.',
-        palette: 'Extraer y fijar la paleta de la imagen aprobada antes de crear las demás animaciones.',
+        profile: 'fabula-top-down-token-pixel-v1',
+        finish: 'Pixel art cenital 3/4 legible a tamaño de token. Usar contornos limpios, volúmenes simples y detalles selectivos; no usar desenfoque ni texturas fuera de escala.',
+        palette: 'Extraer y fijar la paleta del personaje antes de animar; repetirla exactamente en todas las direcciones y estados.',
         identity: 'La imagen del personaje define rostro, cabello, cuerpo, vestuario y equipo; no cambiar su silueta.',
-        framing: 'Frame 384×576 con transparencia WebP y 10% de margen de seguridad en los cuatro bordes. Ancla inferior centrada.',
-        motion: 'Cada pose debe empezar y terminar en una silueta compatible; daño, caída y recuperación deben leerse a tamaño de token.',
-        review: 'Comprobar nitidez, transparencia, escala y ausencia total de recortes antes de exportar.'
+        framing: 'Celdas de 64×96 con transparencia PNG, margen seguro y base de pies en Y=90. Cámara cenital 3/4 constante.',
+        motion: 'Carrera, diagonales, daño, caída, inconsciencia y recuperación con siluetas diferenciables en el tablero.',
+        review: 'Comprobar píxeles nítidos, transparencia, escala y ausencia total de recortes antes de exportar.'
       },
-      output: { frame:'384x576', imageFormat:'webp', transparent:true, webp:{quality:82,alpha:true,targetMaxKB:180}, sheetLayout:'Una fila horizontal por animación', anchor:{x:0.5,y:1}, baseline:540 }
+      output: { frame:'64x96', imageFormat:'png', transparent:true, sheetLayout:'Una fila horizontal por animación', anchor:{x:0.5,y:1}, baseline:90 }
     },
     topdown_hd: {
       note: 'TOP-DOWN Token HD: el perfil nuevo por defecto. Vista cenital 3/4, ilustración nítida, WebP transparente y ocho direcciones reales.',
@@ -83,9 +114,23 @@
       output: { frame:'512x512', imageFormat:'webp', transparent:true, webp:{quality:82,alpha:true,targetMaxKB:220,losslessFor:'idle and key poses'}, sheetLayout:'Una fila horizontal por animación', anchor:{x:0.5,y:0.72}, baseline:369, directions:['n','ne','e','se','s','sw','w','nw'] }
     }
   };
+  const demos = {
+    pixel_2d: { profile:'pixel_legacy', title:'Sprite Pixel Art 2D', copy:'La hechicera original: ocho cuadros de carrera lateral, pixel art 64×96.', classes:'pixel witch' },
+    topdown_pixel: { profile:'topdown_pixel', title:'TOP-DOWN Token Pixel', copy:'Javlight en el estilo pixel cenital: ocho cuadros de carrera con la paleta turquesa, marfil y oro.', classes:'pixel javlight-pixel' },
+    topdown_hd: { profile:'topdown_hd', title:'TOP-DOWN Token HD', copy:'Javlight sin pixelado: cuatro poses de carrera WebP con transparencia y detalle HD.', classes:'hd' }
+  };
+  const demoTitle = document.querySelector('#demo-title'), demoCopy = document.querySelector('#demo-copy'), demoToken = document.querySelector('#demo-token');
+  function showDemo(name) {
+    const demo = demos[name];
+    profileInput.value = demo.profile;
+    demoTitle.textContent = demo.title; demoCopy.textContent = demo.copy; demoToken.className = `demo-token ${demo.classes}`;
+    document.querySelectorAll('[data-demo]').forEach(button => button.classList.toggle('active', button.dataset.demo === name));
+    updateProfileNote();
+  }
+  document.querySelectorAll('[data-demo]').forEach(button => button.onclick = () => showDemo(button.dataset.demo));
   function updateProfileNote() { profileNote.textContent = profiles[profileInput.value].note; }
-  profileInput.onchange = updateProfileNote;
-  updateProfileNote();
+  profileInput.onchange = () => { const demoName = Object.keys(demos).find(name => demos[name].profile === profileInput.value); if (demoName) showDemo(demoName); else updateProfileNote(); };
+  showDemo('topdown_hd');
   document.querySelector('#export').onclick = () => {
     const id = document.querySelector('#id').value.trim();
     if (!/^[a-z0-9_]+$/.test(id)) return alert('Usa minúsculas, números y guion bajo en el identificador.');
