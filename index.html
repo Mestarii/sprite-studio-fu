@@ -8,9 +8,14 @@
   main { max-width: 760px; margin: 2rem auto; padding: 1.5rem; background: #271d34; border: 1px solid #72569a; border-radius: 12px; }
   label { display:block; margin-top:1rem; font-weight:700; } input, textarea, button { width:100%; box-sizing:border-box; margin-top:.35rem; padding:.65rem; border-radius:6px; border:1px solid #8a70b5; background:#17121f; color:inherit; font:inherit; }
   textarea { min-height:7rem; } button { background:#7f56b3; font-weight:700; cursor:pointer; }
-  #preview { display:none; max-width:240px; max-height:300px; margin-top:1rem; }
+  #preview { display:block; max-width:240px; max-height:300px; margin-top:1rem; }
+  #preview[hidden] { display:none; }
   small { color:#d4c4e9; }
   .field-hint { display:block; color:#b9b6c0; margin-top:.4rem; }
+  .reference-options { margin-top:.75rem; }
+  .reference-options label { margin-top:.55rem; }
+  .reference-options input[type=checkbox] { width:auto; margin:0 .4rem 0 0; }
+  .reference-options button { width:auto; }
   .examples { margin-top:1.5rem; padding-top:1rem; border-top:1px solid #72569a; }
   .example-buttons { display:flex; gap:.6rem; flex-wrap:wrap; margin:.7rem 0; }
   .example-buttons button { width:auto; margin:0; background:#302541; }
@@ -37,8 +42,22 @@
 <main>
   <h1>Sprite Studio</h1>
   <p>Prepara una ficha de producción para convertir una ilustración normal en un paquete de sprites animados para Foundry.</p>
-  <label>Ilustración original <input id="reference" type="file" accept="image/*"></label>
-  <img id="preview" alt="Vista previa de referencia">
+  <label for="reference">Ilustración original</label>
+  <small id="reference-hint" class="field-hint">Idealmente, sube al personaje completo de pies a cabeza con fondo transparente, en PNG o WebP. Si tienes una imagen recortada, con fondo o con efectos, puedes usarla como punto de partida.</small>
+  <input id="reference" type="file" accept="image/*" aria-describedby="reference-hint">
+  <img id="preview" alt="Vista previa de referencia" hidden>
+  <details class="reference-options">
+    <summary>Preparar una ilustración recortada, con fondo o con efectos</summary>
+    <small class="field-hint">Marca lo que aplique. El JSON indicará cómo preparar la referencia antes de crear los sprites.</small>
+    <label><input id="reference-cropped" type="checkbox"> Faltan partes del personaje</label>
+    <label><input id="reference-background" type="checkbox"> Hay un fondo</label>
+    <label><input id="reference-effects" type="checkbox"> Hay efectos, texto u otros elementos alrededor</label>
+    <label for="reference-details">Detalles que se deben completar o conservar (opcional)</label>
+    <input id="reference-details" type="text" placeholder="Por ejemplo, pantalón oscuro y botas marrones debajo del recorte">
+    <button id="copy-reference-prompt" type="button">Copiar instrucciones para preparar la imagen</button>
+    <small id="reference-copy-status" class="field-hint" role="status">Úsalas junto con tu ilustración en un editor de imágenes con IA.</small>
+    <textarea id="reference-prompt" aria-label="Instrucciones para preparar la imagen" readonly hidden></textarea>
+  </details>
   <label for="id">Identificador</label>
   <input id="id" placeholder="nombre_del_personaje" pattern="[a-z0-9_]+" aria-describedby="id-hint" required>
   <small id="id-hint" class="field-hint">Aquí pon el nombre de tu personaje en minúsculas, sin espacios. Puedes usar _.</small>
@@ -73,12 +92,75 @@
   </details>
   <label>Notas opcionales <textarea id="notes" placeholder="Dirección preferida, detalles de vestuario, personalidad visual..."></textarea></label>
   <button id="export">Descargar solicitud de generación</button>
-  <small>Tu ilustración se queda en el navegador. La descarga contiene la solicitud JSON para producir los sprites en el perfil elegido.</small>
+  <small>La descarga contiene la solicitud JSON. Para producir los sprites, entrega también la ilustración de referencia al generador.</small>
 </main>
 <script src="studio-preview-v3.js?v=lory-pixel-suave-2"></script>
 <script>
   const reference = document.querySelector('#reference'), preview = document.querySelector('#preview');
-  reference.onchange = () => { const file = reference.files[0]; if (!file) return; preview.src = URL.createObjectURL(file); preview.style.display = 'block'; };
+  let previewUrl;
+  reference.onchange = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    const file = reference.files[0];
+    previewUrl = file ? URL.createObjectURL(file) : undefined;
+    if (previewUrl) preview.src = previewUrl;
+    else preview.removeAttribute('src');
+    preview.hidden = !file;
+  };
+
+  function buildReferencePreparation(identityLock) {
+    const corrections = {
+      cropped: {
+        field: '#reference-cropped',
+        condition: 'Si faltan partes del personaje',
+        instruction: 'amplía el encuadre y reconstruye solo lo que falte. Si no se ve la parte inferior, completa piernas, pies, calzado y ropa de acuerdo con las proporciones y los materiales visibles. Mantén la postura y la anatomía de origen.',
+      },
+      background: {
+        field: '#reference-background',
+        condition: 'Si la imagen tiene fondo',
+        instruction: 'sustituye el fondo por transparencia real y limpia los bordes de la silueta.',
+      },
+      effects: {
+        field: '#reference-effects',
+        condition: 'Si hay elementos alrededor del personaje',
+        instruction: 'omite decorado, auras, partículas, sombras externas, texto y otros elementos de escena. Conserva detalles propios del diseño, como alas, bordados o joyas.',
+      },
+    };
+    const reportedIssues = Object.keys(corrections).filter(key => document.querySelector(corrections[key].field).checked);
+    const details = document.querySelector('#reference-details').value.trim();
+    const instruction = [
+      'Prepara, solo si hace falta, una ilustración maestra con un único personaje completo de pies a cabeza, centrado y con margen alrededor de su silueta. Conserva rostro, pelo, proporciones, ropa, accesorios propios y postura visible.',
+      ...Object.entries(corrections).map(([key, { condition, instruction }]) => reportedIssues.includes(key)
+        ? instruction[0].toUpperCase() + instruction.slice(1)
+        : `${condition}, ${instruction}`),
+      details ? `Detalles indicados por el usuario: ${details}` : '',
+      identityLock ? `Rasgos que se deben conservar: ${identityLock}` : '',
+      'Entrega la referencia maestra en PNG con canal alfa. Si la imagen ya cumple los requisitos, úsala directamente.',
+    ].filter(Boolean).join('\n');
+    return {
+      stage: 'beforeSpriteGeneration',
+      mode: 'asNeeded',
+      reportedIssues,
+      details: details || null,
+      output: { format: 'png', transparent: true, framing: 'fullBody', characterOnly: true },
+      instruction,
+    };
+  }
+
+  document.querySelector('#copy-reference-prompt').onclick = async () => {
+    const prepared = buildReferencePreparation(document.querySelector('#identity').value.trim());
+    const status = document.querySelector('#reference-copy-status');
+    const prompt = document.querySelector('#reference-prompt');
+    try {
+      await navigator.clipboard.writeText(prepared.instruction);
+      prompt.hidden = true;
+      status.textContent = 'Instrucciones copiadas. Pégalas junto con la ilustración en tu editor de imágenes con IA. Después puedes cargar aquí el PNG preparado.';
+    } catch {
+      prompt.value = prepared.instruction;
+      prompt.hidden = false;
+      prompt.select();
+      status.textContent = 'Seleccioné las instrucciones para que las copies manualmente.';
+    }
+  };
   const profiles = {
     pixel_legacy: {
       artDirection: {
@@ -137,9 +219,10 @@
     const { profile, stillUrl } = demoSelector.selection;
     const referenceFile = reference.files[0]?.name ?? null;
     const identityLock = document.querySelector('#identity').value.trim();
+    const referencePreparation = buildReferencePreparation(identityLock);
     const selectedProfile = profiles[profile];
     const artDirection = { ...selectedProfile.artDirection, styleSample: { src: stillUrl } };
-    const notes = [artDirection.finish, artDirection.palette, artDirection.identity, artDirection.framing, artDirection.motion, document.querySelector('#notes').value.trim()].filter(Boolean).join('\n');
+    const notes = ['Antes de generar los sprites, prepara la ilustración según referencePreparation si hace falta.', artDirection.finish, artDirection.palette, artDirection.identity, artDirection.framing, artDirection.motion, document.querySelector('#notes').value.trim()].filter(Boolean).join('\n');
     let packManifest;
     if (packManifestUrls[profile]) {
       try {
@@ -206,7 +289,7 @@
         source:{ ...packManifest.source, reference:'reference.webp' },
       };
     }
-    const request = { schemaVersion:'0.2.0', characterId:id, referenceFile, identityLock, notes, artDirection, output };
+    const request = { schemaVersion:'0.2.0', characterId:id, referenceFile, identityLock, referencePreparation, notes, artDirection, output };
     const blob = new Blob([JSON.stringify(request, null, 2)], {type:'application/json'}), link = document.createElement('a');
     link.href = URL.createObjectURL(blob); link.download = `${id}-sprite-request.json`; link.click(); URL.revokeObjectURL(link.href);
   };
