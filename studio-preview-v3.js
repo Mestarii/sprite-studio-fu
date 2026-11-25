@@ -1,17 +1,20 @@
 'use strict';
 
-const hdManifestUrl = new URL('demos/cecille-hd-v080/manifest.json?v=hd-brazos-1', document.baseURI);
-let hdManifestRequest;
+const packManifestUrls = {
+  topdown_hd: new URL('demos/cecille-hd-v080/manifest.json?v=hd-brazos-1', document.baseURI),
+  topdown_pixel: new URL('demos/lory-pixel-v1/manifest.json', document.baseURI),
+};
+const packManifestRequests = new Map();
 
-function loadHDManifest() {
-  hdManifestRequest ??= fetch(hdManifestUrl).then(response => {
+function loadProfileManifest(profile) {
+  if (!packManifestRequests.has(profile)) packManifestRequests.set(profile, fetch(packManifestUrls[profile]).then(response => {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.json();
   }).catch(error => {
-    hdManifestRequest = undefined;
+    packManifestRequests.delete(profile);
     throw error;
-  });
-  return hdManifestRequest;
+  }));
+  return packManifestRequests.get(profile);
 }
 
 function mountSpriteDemos() {
@@ -94,6 +97,35 @@ function mountSpriteDemos() {
     }));
   }
 
+  function makeLoryScenes(clips) {
+    return [
+      { clip: 'idle', seconds: .7, from: .24, to: .24, fadeIn: true },
+      { clip: 'run', seconds: 1.2, from: .24, to: .45 },
+      { clip: 'stop_e', seconds: .6, from: .45, to: .5, slowdown: true },
+      { clip: 'posture_dodge', seconds: 2 },
+      { clip: 'posture_dodge_back' },
+      { clip: 'posture_dodge', seconds: .9 },
+      { clip: 'posture_hide_ne', seconds: .9 },
+      { clip: 'posture_sneak_ne', seconds: 1.15, from: .5, to: .64, lift: .06 },
+      { clip: 'posture_sneak_n', seconds: .85, from: .64, to: .64, lift: .04, elevation: .06 },
+      { clip: 'posture_hide_n', seconds: 1, from: .64, to: .64, elevation: .10, fadeOut: true },
+      { clip: 'posture_rage', seconds: 1.35, fadeIn: true },
+      { clip: 'dnd_weapon_heavy' },
+      { clip: 'dnd_cast_cone' },
+      { clip: 'dnd_summon_nature' },
+      { clip: 'hurt_guard' },
+      { clip: 'idle_exhausted', seconds: .8 },
+      { clip: 'idle_exhausted_sigh' },
+      { clip: 'condition_prone_trip' },
+      { clip: 'condition_prone', seconds: 1.25 },
+      { clip: 'rise' },
+      { clip: 'idle', seconds: .9, fadeOut: true },
+    ].map(step => ({
+      ...step,
+      seconds: step.seconds ?? clips[step.clip].frames.length / clips[step.clip].fps,
+    }));
+  }
+
   function drawPose(surface, context, pose, position, alpha, fitWidth, clip, elevation = 0) {
     const { frame, pixelArt } = pack;
     const image = clip?.image ?? pack.image;
@@ -107,7 +139,8 @@ function mountSpriteDemos() {
     if (surface.width !== width) surface.width = width;
     if (surface.height !== height) surface.height = height;
     context.clearRect(0, 0, width, height);
-    const size = Math.min(height * (pixelArt ? .76 : fitWidth === .44 ? .70 : .79) / frame.height, width * fitWidth / frame.width);
+    const verticalFit = pixelArt && !pack.sheetClips ? .76 : fitWidth === .44 ? .70 : .79;
+    const size = Math.min(height * verticalFit / frame.height, width * fitWidth / frame.width);
     const drawWidth = frame.width * size;
     const drawHeight = frame.height * size;
     context.imageSmoothingEnabled = !pixelArt;
@@ -129,7 +162,7 @@ function mountSpriteDemos() {
     }) ?? scenes[0];
     const progress = time / step.seconds;
     const clip = clips[step.clip].failed ? clips.idle : clips[step.clip];
-    if (pack.hd) {
+    if (pack.sheetClips) {
       const next = scenes[(scenes.indexOf(step) + 1) % scenes.length];
       requestClip(clips[next.clip]);
       if (!clip.failed && !clip.image) {
@@ -149,7 +182,7 @@ function mountSpriteDemos() {
     const elevation = (step.elevation ?? 0) + (step.lift ?? 0) * distance;
     drawPose(canvas, ctx, pose, showStatic ? .5 : position, alpha, .44, clip, elevation);
 
-    if (idleContext && pack.hd) {
+    if (idleContext && pack.sheetClips) {
       const { gestures } = pack;
       let gestureTime = elapsed % gestures.reduce((sum, gesture) => sum + gesture.wait + gesture.duration, 0);
       const gesture = gestures.find(candidate => {
@@ -212,15 +245,17 @@ function mountSpriteDemos() {
     });
   }
 
-  async function loadHDPack() {
-    const manifest = await loadHDManifest();
+  async function loadAnimationPack(profile) {
+    const manifest = await loadProfileManifest(profile);
+    const manifestUrl = packManifestUrls[profile];
     const { frame } = manifest;
     const clips = Object.fromEntries(Object.entries(manifest.animations).map(([name, animation]) => {
-      const { frames, columns } = animation;
-      const url = new URL(animation.sheet, hdManifestUrl);
-      url.search = hdManifestUrl.search;
+      const { frames, columns = frames } = animation;
+      const url = new URL(animation.sheet, manifestUrl);
+      url.search = manifestUrl.search;
       return [name, {
         ...animation,
+        columns,
         frames: Array.from({ length: frames }, (_, index) => index),
         url: url.href,
         width: frame.width * columns,
@@ -238,7 +273,7 @@ function mountSpriteDemos() {
         duration: clip.frames.length / clip.fps,
       };
     });
-    return { frame, clips, gestures, hd: true };
+    return { frame, clips, gestures, sheetClips: true, pixelArt: manifest.textureSampling !== 'linear' };
   }
 
   async function loadPack(url) {
@@ -261,9 +296,9 @@ function mountSpriteDemos() {
   async function select(profile) {
     cancelAnimationFrame(animationId);
     const { id, name } = examples[profile];
-    const hd = profile === 'topdown_hd';
-    const manifestUrl = hd ? hdManifestUrl : new URL(`demos/${id}.json`, document.baseURI);
-    const stillUrl = new URL(hd ? 'native-idle.webp' : `${id}-reposo.webp`, manifestUrl).href;
+    const curated = packManifestUrls[profile];
+    const manifestUrl = curated ?? new URL(`demos/${id}.json`, document.baseURI);
+    const stillUrl = new URL(curated ? 'native-idle.webp' : `${id}-reposo.webp`, manifestUrl).href;
     const current = { profile, stillUrl };
     selection = current;
     pack = null;
@@ -284,12 +319,14 @@ function mountSpriteDemos() {
     play.disabled = replay.disabled = true;
     buttons.forEach(button => button.setAttribute('aria-pressed', button.dataset.demo === profile));
 
-    if (!cache.has(profile)) cache.set(profile, hd ? loadHDPack() : loadPack(manifestUrl));
+    if (!cache.has(profile)) cache.set(profile, curated ? loadAnimationPack(profile) : loadPack(manifestUrl));
     try {
       const loaded = await cache.get(profile);
       if (selection !== current) return;
       pack = loaded;
-      scenes = hd ? makeHDScenes(pack.clips) : makeScenes(pack.clips);
+      const makeProfileScenes = profile === 'topdown_hd' ? makeHDScenes
+        : profile === 'topdown_pixel' ? makeLoryScenes : makeScenes;
+      scenes = makeProfileScenes(pack.clips);
       sceneDuration = scenes.reduce((sum, step) => sum + step.seconds, 0);
       elapsed = 0;
       status.hidden = true;

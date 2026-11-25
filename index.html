@@ -75,7 +75,7 @@
   <button id="export">Descargar solicitud de generación</button>
   <small>Tu ilustración se queda en el navegador. La descarga contiene la solicitud JSON para producir los sprites en el perfil elegido.</small>
 </main>
-<script src="studio-preview-v3.js?v=hd-brazos-1"></script>
+<script src="studio-preview-v3.js?v=lory-pixel-1"></script>
 <script>
   const reference = document.querySelector('#reference'), preview = document.querySelector('#preview');
   reference.onchange = () => { const file = reference.files[0]; if (!file) return; preview.src = URL.createObjectURL(file); preview.style.display = 'block'; };
@@ -98,11 +98,15 @@
         finish: 'Pixel art cenital 3/4 legible a tamaño de token. Usar contornos limpios, volúmenes simples y detalles selectivos; no usar desenfoque ni texturas fuera de escala.',
         palette: 'Extraer y fijar la paleta del personaje antes de animar; repetirla exactamente en todas las direcciones y estados.',
         identity: 'La imagen del personaje define rostro, cabello, cuerpo, vestuario y equipo; no cambiar su silueta.',
-        framing: 'Celdas de 64×96 con transparencia PNG, margen seguro y base de pies en Y=90. Cámara cenital 3/4 constante.',
-        motion: 'Carrera, diagonales, daño, caída, inconsciencia y recuperación con siluetas diferenciables en el tablero.',
-        review: 'Comprobar píxeles nítidos, transparencia, escala y ausencia total de recortes antes de exportar.'
+        framing: 'Cuadros de 96×96 con transparencia WebP sin pérdida, cámara cenital 3/4 y línea base en Y=91. Mantener el encuadre y margen alrededor de la silueta.',
+        motion: 'Dibujar poses completas para reposo, movimiento en ocho sentidos, fatiga, daño, condiciones, combate y conjuros. Para sigilo, bajar la postura y alternar el pie de apoyo. Mostrar la espalda al ir al norte. Mantener gestos de reposo tras 6–14 segundos de quietud.',
+        anatomy: {
+          method: 'Dibujar cabeza, torso y cadera como volúmenes coherentes. Conectar cada mano al mismo hombro a través de su codo y cada pie a su cadera a través de su rodilla.',
+          validation: 'Cuando una mano o pie cambia de sitio, redibujar la zona que dejó. Animar de una pose completa a otra y comprobar la silueta con ampliación por vecino más cercano.',
+        },
+        review: 'Comprobar píxeles nítidos, transparencia, escala, apoyo de pies y ausencia de recortes antes de exportar.'
       },
-      output: { frame:'64x96', imageFormat:'png', transparent:true, sheetLayout:'Una fila horizontal por animación', anchor:{x:0.5,y:1}, baseline:90 }
+      output: { frame:'96x96', imageFormat:'webp', transparent:true, webp:{lossless:true,alpha:true}, sheetLayout:'Una hoja por animación, de izquierda a derecha y de arriba abajo. Conservar las columnas declaradas en cada animación.', textureSampling:'nearest', directions:['n','ne','e','se','s','sw','w','nw'] }
     },
     topdown_hd: {
       artDirection: {
@@ -132,18 +136,18 @@
     const selectedProfile = profiles[profile];
     const artDirection = { ...selectedProfile.artDirection, styleSample: { src: stillUrl } };
     const notes = [artDirection.finish, artDirection.palette, artDirection.identity, artDirection.framing, artDirection.motion, document.querySelector('#notes').value.trim()].filter(Boolean).join('\n');
-    let hd;
-    if (profile === 'topdown_hd') {
+    let packManifest;
+    if (packManifestUrls[profile]) {
       try {
-        hd = await loadHDManifest();
+        packManifest = await loadProfileManifest(profile);
       } catch {
-        return alert('No se pudo cargar el manifiesto HD. Vuelve a intentar la descarga.');
+        return alert('No se pudo cargar el manifiesto del perfil. Vuelve a intentar la descarga.');
       }
     }
 
     const timings = {idle:[6,6,true],run:[8,12,true],run_ne:[8,12,true],run_se:[8,12,true],fall:[6,10,false],down:[1,1,true],rise:[6,10,false],hurt:[10,8,false],idle_step:[8,8,false],idle_look:[10,8,false],idle_scratch:[12,8,false],idle_adjust:[10,8,false],hurt_guard:[10,8,false],idle_exhausted:[12,6,true]};
-    const animationSpecs = hd
-      ? Object.fromEntries(Object.entries(hd.animations).map(([name, spec]) => [name, {...spec}]))
+    const animationSpecs = packManifest
+      ? Object.fromEntries(Object.entries(packManifest.animations).map(([name, spec]) => [name, {...spec}]))
       : Object.fromEntries(Object.entries(timings).map(([name,[frames,fps,loop]]) => [name,{frames,fps,loop}]));
     const poses = {
       idle_step:'Usar el reposo aprobado como base. Mantener un pie plantado, levantar ligeramente el otro y volver a la misma pose.',
@@ -155,14 +159,14 @@
       idle_exhausted:'Hombros caídos, cabeza baja, mano cerca del costado y respiración pesada con pausa al exhalar. Mostrar la herida por la postura; conservar paleta, facciones y punto de apoyo. Cerrar el bucle sin salto.'
     };
     for (const [name,pose] of Object.entries(poses)) if (animationSpecs[name]) animationSpecs[name].pose = pose;
-    if (hd) {
+    if (packManifest) {
       for (const view of ['n','ne']) animationSpecs[`idle_${view}_look`].pose = 'Conservar el cuerpo de espaldas. Girar la cabeza para mirar por encima del hombro y regresar a la pose de partida.';
       animationSpecs.idle_n_look_left.pose = 'Mirar por encima del hombro izquierdo con hombros y pies en su dirección original.';
       for (const suffix of ['', '_n']) {
         animationSpecs[`idle_exhausted${suffix}_pain`].pose = 'Inclinar ligeramente el torso y llevar una mano al costado. Volver al reposo fatigado.';
         animationSpecs[`idle_exhausted${suffix}_sigh`].pose = 'Respirar hondo, soltar los hombros y volver al ritmo habitual.';
       }
-      const hdPoses = {
+      const combatPoses = {
         posture_dodge:'Flexionar rodillas y mantener las manos arriba. Mirar a ambos lados en guardia, con los pies listos para impulsarse.',
         posture_dodge_back:'Saltar atrás al esquivar. Amortiguar el aterrizaje con ambas piernas y regresar a guardia.',
         posture_rage:'Fruncir el ceño, adelantar el cuerpo y apretar los puños. Mantener la respiración tensa y la postura de ataque.',
@@ -178,7 +182,7 @@
           : name.startsWith('dnd_summon_') ? 'Conjurar con las manos y un círculo amplio a la altura del suelo centrado en los pies. Usar el color correspondiente al tono del conjuro.'
           : name.startsWith('dnd_cast_') ? 'Preparar y soltar el gesto de lanzar magia a distancia. Variar la posición de manos y el círculo de invocación.'
           : undefined;
-        const pose = hdPoses[name] ?? motion;
+        const pose = combatPoses[name] ?? motion;
         if (pose) animationSpecs[name].pose = pose;
       }
     }
@@ -187,15 +191,15 @@
       damage:{variants:['hurt','hurt_guard'], selection:'alternatePerTokenPerHit', after:'resolveCurrentState', onIncapacitated:'fall'},
       restingHealth:{current:'hp', maximum:'maxHp', requirePositiveMaximum:true, exhaustedWhen:'0 < hp && 2 * hp < maxHp', exhausted:'idle_exhausted', normal:'idle', onZero:'fall_then_down', unknownMaximum:'idle', reevaluateOn:['tokenReady','hpChanged','maxHpChanged','move-stop','damageComplete','riseComplete']}
     };
-    const output = { ...selectedProfile.output, animations:Object.keys(animationSpecs), animationSpecs, playback:hd?.playback ?? playback };
-    if (hd) {
-      const { frame, scale, viewport, textureSampling, actions, conditions } = hd;
+    const output = { ...selectedProfile.output, animations:Object.keys(animationSpecs), animationSpecs, playback:packManifest?.playback ?? playback };
+    if (packManifest) {
+      const { frame, scale, viewport, textureSampling, actions, conditions } = packManifest;
       Object.assign(output, { anchor:frame.anchor, baseline:frame.baseline, scale, viewport, textureSampling, actions, conditions });
       output.foundryManifest = {
-        ...hd,
+        ...packManifest,
         id,
         label:id,
-        source:{ ...hd.source, reference:'reference.webp' },
+        source:{ ...packManifest.source, reference:'reference.webp' },
       };
     }
     const request = { schemaVersion:'0.2.0', characterId:id, referenceFile, identityLock, notes, artDirection, output };
