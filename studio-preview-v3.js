@@ -1,6 +1,6 @@
 'use strict';
 
-const hdManifestUrl = new URL('demos/cecille-hd-v080/manifest.json', document.baseURI);
+const hdManifestUrl = new URL('demos/cecille-hd-v080/manifest.json?v=hd-brazos-1', document.baseURI);
 let hdManifestRequest;
 
 function loadHDManifest() {
@@ -217,10 +217,12 @@ function mountSpriteDemos() {
     const { frame } = manifest;
     const clips = Object.fromEntries(Object.entries(manifest.animations).map(([name, animation]) => {
       const { frames, columns } = animation;
+      const url = new URL(animation.sheet, hdManifestUrl);
+      url.search = hdManifestUrl.search;
       return [name, {
         ...animation,
         frames: Array.from({ length: frames }, (_, index) => index),
-        url: new URL(animation.sheet, hdManifestUrl).href,
+        url: url.href,
         width: frame.width * columns,
         height: frame.height * Math.ceil(frames / columns),
       }];

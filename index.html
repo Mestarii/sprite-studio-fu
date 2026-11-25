@@ -75,7 +75,7 @@
   <button id="export">Descargar solicitud de generación</button>
   <small>Tu ilustración se queda en el navegador. La descarga contiene la solicitud JSON para producir los sprites en el perfil elegido.</small>
 </main>
-<script src="studio-preview-v3.js?v=hd-v080"></script>
+<script src="studio-preview-v3.js?v=hd-brazos-1"></script>
 <script>
   const reference = document.querySelector('#reference'), preview = document.querySelector('#preview');
   reference.onchange = () => { const file = reference.files[0]; if (!file) return; preview.src = URL.createObjectURL(file); preview.style.display = 'block'; };
@@ -114,7 +114,7 @@
         anatomy: {
           method: 'Anotar los puntos anatómicos en las poses aprobadas antes de animar. Marcar los puntos ocultos por ropa, pelo o ángulo. Adaptar el esquema a la anatomía del personaje.',
           landmarks: ['cabeza','hombros','codos','manos','torso','cadera','rodillas','pies'],
-          validation: 'Una silueta completa por cuadro. Conservar la cantidad de extremidades y la conexión hombro–codo–mano y cadera–rodilla–pie. Revisar cada pose dibujada para aprobar brazos y manos.',
+          validation: 'Una silueta completa por cuadro. Conservar la cantidad de extremidades y la conexión hombro–codo–mano y cadera–rodilla–pie. Seguir cada brazo desde su hombro hasta la mano en cada cuadro. Cuando una mano sube, redibujar la zona que ocupaba para que solo quede la otra mano abajo.',
         },
         motion: 'Preparar carrera en ocho sentidos y mostrar la espalda al correr hacia el norte. Crear reposo direccional con respiración y pies apoyados. Construir cada gesto con poses completas y sucesivas de anticipación, acción y regreso. Evitar interpolación óptica, fundidos entre poses o superposición de extremidades. Reproducir gestos tras 6–14 s de quietud, incluidos gestos de espalda y de fatiga. Crear las posturas, los movimientos sigilosos, las reacciones a condiciones y los gestos de combate descritos en el manifiesto. Animar los ataques con el cuerpo del personaje. En los conjuros usar los círculos arcanos indicados por el tipo de lanzamiento.',
         review: 'Revisar cuadro a cuadro y a escala del tablero. Comprobar que los gestos conservan anatomía, anclaje, silueta, luz y detalle. Priorizar la claridad y el peso de las hojas al elegir cuántos cuadros exportar.'
