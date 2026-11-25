@@ -29,6 +29,7 @@
       "frames": 6,
       "fps": 6,
       "loop": true,
+      "columns": 6,
       "status": "implemented"
     },
     "run": {
@@ -36,6 +37,7 @@
       "frames": 8,
       "fps": 12,
       "loop": true,
+      "columns": 8,
       "status": "implemented"
     },
     "run_ne": {
@@ -43,6 +45,7 @@
       "frames": 8,
       "fps": 12,
       "loop": true,
+      "columns": 8,
       "status": "implemented"
     },
     "run_se": {
@@ -50,13 +53,15 @@
       "frames": 8,
       "fps": 12,
       "loop": true,
+      "columns": 8,
       "status": "implemented"
     },
     "fall": {
       "sheet": "animations/fall.png",
-      "frames": 6,
-      "fps": 10,
+      "frames": 12,
+      "fps": 12,
       "loop": false,
+      "columns": 8,
       "status": "implemented"
     },
     "down": {
@@ -64,55 +69,63 @@
       "frames": 1,
       "fps": 1,
       "loop": true,
+      "columns": 1,
       "status": "implemented"
     },
     "rise": {
       "sheet": "animations/rise.png",
-      "frames": 6,
-      "fps": 10,
+      "frames": 13,
+      "fps": 11,
       "loop": false,
+      "columns": 8,
       "status": "implemented"
     },
     "hurt": {
       "sheet": "animations/hurt.png",
-      "frames": 10,
-      "fps": 8,
+      "frames": 8,
+      "fps": 12,
       "loop": false,
+      "columns": 8,
       "status": "implemented"
     },
     "hurt_guard": {
       "sheet": "animations/hurt_guard.png",
-      "frames": 10,
-      "fps": 8,
+      "frames": 8,
+      "fps": 12,
       "loop": false,
+      "columns": 8,
       "status": "implemented"
     },
     "idle_step": {
       "sheet": "animations/idle_step.webp",
-      "frames": 8,
+      "frames": 16,
       "fps": 8,
       "loop": false,
+      "columns": 8,
       "status": "implemented"
     },
     "idle_look": {
       "sheet": "animations/idle_look.png",
-      "frames": 10,
+      "frames": 16,
       "fps": 8,
       "loop": false,
+      "columns": 8,
       "status": "implemented"
     },
     "idle_scratch": {
       "sheet": "animations/idle_scratch.png",
-      "frames": 12,
+      "frames": 16,
       "fps": 8,
       "loop": false,
+      "columns": 8,
       "status": "implemented"
     },
     "idle_adjust": {
       "sheet": "animations/idle_adjust.png",
-      "frames": 10,
+      "frames": 16,
       "fps": 8,
       "loop": false,
+      "columns": 8,
       "status": "implemented"
     },
     "idle_exhausted": {
@@ -120,6 +133,7 @@
       "frames": 12,
       "fps": 6,
       "loop": true,
+      "columns": 8,
       "status": "implemented"
     },
     "idle_n": {
@@ -204,10 +218,10 @@
     },
     "stop_e": {
       "sheet": "animations/stop_e.webp",
-      "frames": 6,
+      "frames": 8,
       "fps": 10,
       "loop": false,
-      "columns": 6,
+      "columns": 8,
       "status": "implemented"
     },
     "idle_look_se": {
@@ -540,7 +554,7 @@
     },
     "condition_down_a": {
       "sheet": "animations/condition_down_a.webp",
-      "frames": 16,
+      "frames": 18,
       "fps": 6,
       "loop": true,
       "columns": 8,
@@ -556,7 +570,7 @@
     },
     "condition_down_c": {
       "sheet": "animations/condition_down_c.webp",
-      "frames": 16,
+      "frames": 21,
       "fps": 6,
       "loop": true,
       "columns": 8,

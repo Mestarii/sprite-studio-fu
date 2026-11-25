@@ -1,7 +1,7 @@
 'use strict';
 
 const packManifestUrls = {
-  pixel_legacy: new URL('demos/javlight-2d-v1/manifest.json', document.baseURI),
+  pixel_legacy: new URL('demos/javlight-2d-v1/manifest.json?v=javlight-transiciones-2', document.baseURI),
   topdown_hd: new URL('demos/cecille-hd-v080/manifest.json?v=hd-brazos-1', document.baseURI),
   topdown_pixel: new URL('demos/lory-pixel-v1/manifest.json', document.baseURI),
 };

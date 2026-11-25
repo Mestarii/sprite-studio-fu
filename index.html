@@ -75,7 +75,7 @@
   <button id="export">Descargar solicitud de generación</button>
   <small>Tu ilustración se queda en el navegador. La descarga contiene la solicitud JSON para producir los sprites en el perfil elegido.</small>
 </main>
-<script src="studio-preview-v3.js?v=javlight-2d-1"></script>
+<script src="studio-preview-v3.js?v=javlight-transiciones-2"></script>
 <script>
   const reference = document.querySelector('#reference'), preview = document.querySelector('#preview');
   reference.onchange = () => { const file = reference.files[0]; if (!file) return; preview.src = URL.createObjectURL(file); preview.style.display = 'block'; };
@@ -92,7 +92,7 @@
           method: 'Marcar cabeza, hombros, codos, manos, torso, cadera, rodillas y pies. Dibujar primero las siluetas de cada apoyo y luego la ropa.',
           validation: 'Comprobar que cada brazo y mano acompaña a su hombro al cambiar de pose. Cada pie sale de una sola pierna y conserva un apoyo legible.',
         },
-        review: 'Revisar al tamaño del token y con ampliación por vecino más cercano. Verificar el margen, el apoyo de los pies y la continuidad de la silueta.'
+        review: 'Revisar al tamaño del token. El último cuadro de caída y el primero de levantarse deben usar exactamente la misma pose en el suelo. Mantener posición, escala y vestuario en todas las variantes de inconsciencia.'
       },
       output: { frame:'96x96', imageFormat:'webp', transparent:true, webp:{lossless:true,alpha:true}, sheetLayout:'Una hoja por animación. Mantener el formato, el orden y el número de columnas indicados en el manifiesto.', textureSampling:'nearest', directions:['n','ne','e','se','s','sw','w','nw'] }
     },
