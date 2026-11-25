@@ -1,6 +1,7 @@
 'use strict';
 
 const packManifestUrls = {
+  pixel_legacy: new URL('demos/javlight-2d-v1/manifest.json', document.baseURI),
   topdown_hd: new URL('demos/cecille-hd-v080/manifest.json?v=hd-brazos-1', document.baseURI),
   topdown_pixel: new URL('demos/lory-pixel-v1/manifest.json', document.baseURI),
 };
@@ -118,6 +119,35 @@ function mountSpriteDemos() {
       { clip: 'idle_exhausted_sigh' },
       { clip: 'condition_prone_trip' },
       { clip: 'condition_prone', seconds: 1.25 },
+      { clip: 'rise' },
+      { clip: 'idle', seconds: .9, fadeOut: true },
+    ].map(step => ({
+      ...step,
+      seconds: step.seconds ?? clips[step.clip].frames.length / clips[step.clip].fps,
+    }));
+  }
+
+  function makeJavlightScenes(clips) {
+    return [
+      { clip: 'idle', seconds: .7, from: .23, to: .23, fadeIn: true },
+      { clip: 'run', seconds: 1.25, from: .23, to: .46 },
+      { clip: 'stop_e', seconds: .6, from: .46, to: .5, slowdown: true },
+      { clip: 'run_ne', seconds: .9, from: .5, to: .6, lift: .04 },
+      { clip: 'run_n', seconds: .85, from: .6, to: .6, elevation: .04, lift: .05 },
+      { clip: 'idle_n_look', from: .6, to: .6, elevation: .09, fadeOut: true },
+      { clip: 'posture_dodge', seconds: 1.7, fadeIn: true },
+      { clip: 'posture_dodge_back' },
+      { clip: 'posture_dodge', seconds: .8 },
+      { clip: 'posture_hide_e', seconds: .7 },
+      { clip: 'posture_sneak_e', seconds: 1.05, from: .5, to: .64 },
+      { clip: 'posture_sneak_ne', seconds: 1, from: .64, to: .71, lift: .08, fadeOut: true },
+      { clip: 'posture_rage', seconds: 1.25, fadeIn: true },
+      { clip: 'dnd_weapon_finesse' },
+      { clip: 'dnd_cast_cone' },
+      { clip: 'dnd_summon_arcane' },
+      { clip: 'hurt_guard' },
+      { clip: 'fall' },
+      { clip: 'condition_down_b', seconds: 1.25 },
       { clip: 'rise' },
       { clip: 'idle', seconds: .9, fadeOut: true },
     ].map(step => ({
@@ -324,8 +354,11 @@ function mountSpriteDemos() {
       const loaded = await cache.get(profile);
       if (selection !== current) return;
       pack = loaded;
-      const makeProfileScenes = profile === 'topdown_hd' ? makeHDScenes
-        : profile === 'topdown_pixel' ? makeLoryScenes : makeScenes;
+      const makeProfileScenes = {
+        topdown_hd: makeHDScenes,
+        topdown_pixel: makeLoryScenes,
+        pixel_legacy: makeJavlightScenes,
+      }[profile] ?? makeScenes;
       scenes = makeProfileScenes(pack.clips);
       sceneDuration = scenes.reduce((sum, step) => sum + step.seconds, 0);
       elapsed = 0;

@@ -75,7 +75,7 @@
   <button id="export">Descargar solicitud de generación</button>
   <small>Tu ilustración se queda en el navegador. La descarga contiene la solicitud JSON para producir los sprites en el perfil elegido.</small>
 </main>
-<script src="studio-preview-v3.js?v=lory-pixel-1"></script>
+<script src="studio-preview-v3.js?v=javlight-2d-1"></script>
 <script>
   const reference = document.querySelector('#reference'), preview = document.querySelector('#preview');
   reference.onchange = () => { const file = reference.files[0]; if (!file) return; preview.src = URL.createObjectURL(file); preview.style.display = 'block'; };
@@ -83,14 +83,18 @@
     pixel_legacy: {
       artDirection: {
         profile: 'fabula-pixel-discreto-v1',
-        finish: 'Pixel art discreto de cuerpo entero. Usar contornos finos y legibles, pliegues en masas amplias y detalles selectivos. Evitar el tramado y el ruido de píxeles.',
+        finish: 'Pixel art 2D de cuerpo entero, con cámara lateral a la altura del pecho. Usar contornos finos, pliegues en masas amplias y detalles selectivos.',
         palette: 'Extraer la paleta de la ilustración del personaje. Aprobar primero el reposo y usar sus colores para todas las animaciones.',
         identity: 'La imagen del personaje define rostro, cabello, cuerpo, vestuario y equipo.',
-        framing: 'Celdas fijas de 64×96 con alfa real, margen transparente en los cuatro bordes, pies en Y=90 y ancla inferior centrada.',
-        motion: 'Reposo, carrera lateral y diagonales, daño, caída, suelo y recuperación. Mantener el mismo tamaño y la misma paleta en cada pose.',
-        review: 'Revisar a tamaño de token que ninguna silueta toque el borde y que los pies permanezcan estables.'
+        framing: 'Cuadros de 96×96 con alfa real, ancla centrada y apoyo habitual en Y=91. Mantener la cámara a la misma altura al girar de frente, de perfil o de espaldas.',
+        motion: 'Dibujar reposos, ocho sentidos de carrera, sigilo, combate y condiciones con poses 2D completas. Dibujar los apoyos alternos sin invertir el cabello ni las cintas de un cuadro al siguiente. Mostrar la espalda al correr o moverse en sigilo hacia el norte. Ubicar los círculos de conjuro al nivel de las manos o del suelo, según la acción.',
+        anatomy: {
+          method: 'Marcar cabeza, hombros, codos, manos, torso, cadera, rodillas y pies. Dibujar primero las siluetas de cada apoyo y luego la ropa.',
+          validation: 'Comprobar que cada brazo y mano acompaña a su hombro al cambiar de pose. Cada pie sale de una sola pierna y conserva un apoyo legible.',
+        },
+        review: 'Revisar al tamaño del token y con ampliación por vecino más cercano. Verificar el margen, el apoyo de los pies y la continuidad de la silueta.'
       },
-      output: { frame:'64x96', imageFormat:'png', transparent:true, sheetLayout:'Una fila horizontal por animación', anchor:{x:0.5,y:1}, baseline:90 }
+      output: { frame:'96x96', imageFormat:'webp', transparent:true, webp:{lossless:true,alpha:true}, sheetLayout:'Una hoja por animación. Mantener el formato, el orden y el número de columnas indicados en el manifiesto.', textureSampling:'nearest', directions:['n','ne','e','se','s','sw','w','nw'] }
     },
     topdown_pixel: {
       artDirection: {
