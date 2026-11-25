@@ -1,0 +1,1145 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "cecille_prueba",
+  "label": "Cecille prueba",
+  "frame": {
+    "width": 512,
+    "height": 512,
+    "anchor": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "baseline": 492,
+    "fit": "contain"
+  },
+  "scale": 1,
+  "direction": "right",
+  "source": {
+    "nativeToken": "native-idle.webp",
+    "reference": "cecille-reposo.webp"
+  },
+  "animations": {
+    "idle": {
+      "sheet": "animations/idle.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_se": {
+      "sheet": "animations/idle_se.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_s": {
+      "sheet": "animations/idle_s.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_n": {
+      "sheet": "animations/idle_n.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_ne": {
+      "sheet": "animations/idle_ne.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_exhausted": {
+      "sheet": "animations/idle_exhausted.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_exhausted_n": {
+      "sheet": "animations/idle_exhausted_n.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_look": {
+      "sheet": "animations/idle_look.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_scratch": {
+      "sheet": "animations/idle_scratch.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_adjust": {
+      "sheet": "animations/idle_adjust.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_step": {
+      "sheet": "animations/idle_step.webp",
+      "frames": 16,
+      "fps": 8,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_look_se": {
+      "sheet": "animations/idle_look_se.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_scratch_se": {
+      "sheet": "animations/idle_scratch_se.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_adjust_se": {
+      "sheet": "animations/idle_adjust_se.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_step_se": {
+      "sheet": "animations/idle_step_se.webp",
+      "frames": 16,
+      "fps": 8,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_look_s": {
+      "sheet": "animations/idle_look_s.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_step_s": {
+      "sheet": "animations/idle_step_s.webp",
+      "frames": 16,
+      "fps": 8,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_n_look": {
+      "sheet": "animations/idle_n_look.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_n_look_left": {
+      "sheet": "animations/idle_n_look_left.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_n_adjust": {
+      "sheet": "animations/idle_n_adjust.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_ne_look": {
+      "sheet": "animations/idle_ne_look.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_ne_adjust": {
+      "sheet": "animations/idle_ne_adjust.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_exhausted_pain": {
+      "sheet": "animations/idle_exhausted_pain.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_exhausted_sigh": {
+      "sheet": "animations/idle_exhausted_sigh.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_exhausted_n_pain": {
+      "sheet": "animations/idle_exhausted_n_pain.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_exhausted_n_sigh": {
+      "sheet": "animations/idle_exhausted_n_sigh.webp",
+      "frames": 16,
+      "fps": 6.4,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "run_n": {
+      "sheet": "animations/run_n.webp",
+      "frames": 8,
+      "fps": 12,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "run_ne": {
+      "sheet": "animations/run_ne.webp",
+      "frames": 8,
+      "fps": 12,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "run_e": {
+      "sheet": "animations/run_e.webp",
+      "frames": 8,
+      "fps": 12,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "run_se": {
+      "sheet": "animations/run_se.webp",
+      "frames": 8,
+      "fps": 12,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "run_s": {
+      "sheet": "animations/run_s.webp",
+      "frames": 8,
+      "fps": 12,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "run_sw": {
+      "sheet": "animations/run_sw.webp",
+      "frames": 8,
+      "fps": 12,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "run_w": {
+      "sheet": "animations/run_w.webp",
+      "frames": 8,
+      "fps": 12,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "run_nw": {
+      "sheet": "animations/run_nw.webp",
+      "frames": 8,
+      "fps": 12,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "fall": {
+      "sheet": "animations/fall.webp",
+      "frames": 6,
+      "fps": 10,
+      "loop": false,
+      "columns": 6,
+      "status": "implemented"
+    },
+    "down": {
+      "sheet": "animations/down.webp",
+      "frames": 1,
+      "fps": 1,
+      "loop": true,
+      "columns": 1,
+      "status": "implemented"
+    },
+    "rise": {
+      "sheet": "animations/rise.webp",
+      "frames": 6,
+      "fps": 10,
+      "loop": false,
+      "columns": 6,
+      "status": "implemented"
+    },
+    "hurt": {
+      "sheet": "animations/hurt.webp",
+      "frames": 4,
+      "fps": 10,
+      "loop": false,
+      "columns": 4,
+      "status": "implemented"
+    },
+    "hurt_guard": {
+      "sheet": "animations/hurt_guard.webp",
+      "frames": 6,
+      "fps": 10,
+      "loop": false,
+      "columns": 6,
+      "status": "implemented"
+    },
+    "run": {
+      "sheet": "animations/run_e.webp",
+      "frames": 8,
+      "fps": 12,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "dnd_melee_punch": {
+      "sheet": "animations/dnd_melee_punch.webp",
+      "frames": 6,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented",
+      "columns": 6
+    },
+    "dnd_melee_palm": {
+      "sheet": "animations/dnd_melee_palm.webp",
+      "frames": 6,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented",
+      "columns": 6
+    },
+    "dnd_melee_sweep": {
+      "sheet": "animations/dnd_melee_sweep.webp",
+      "frames": 6,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented",
+      "columns": 6
+    },
+    "dnd_spell_burst": {
+      "sheet": "animations/dnd_spell_burst.webp",
+      "frames": 8,
+      "fps": 9,
+      "loop": false,
+      "status": "implemented",
+      "columns": 8
+    },
+    "dnd_spell_ward": {
+      "sheet": "animations/dnd_spell_ward.webp",
+      "frames": 8,
+      "fps": 9,
+      "loop": false,
+      "status": "implemented",
+      "columns": 8
+    },
+    "dnd_spell_focus": {
+      "sheet": "animations/dnd_spell_focus.webp",
+      "frames": 8,
+      "fps": 9,
+      "loop": false,
+      "status": "implemented",
+      "columns": 8
+    },
+    "dnd_dodge_duck": {
+      "sheet": "animations/dnd_dodge_duck.webp",
+      "frames": 6,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented",
+      "columns": 6
+    },
+    "dnd_dodge_lean": {
+      "sheet": "animations/dnd_dodge_lean.webp",
+      "frames": 6,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented",
+      "columns": 6
+    },
+    "dnd_dodge_step": {
+      "sheet": "animations/dnd_dodge_step.webp",
+      "frames": 6,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented",
+      "columns": 6
+    },
+    "condition_poisoned": {
+      "sheet": "animations/condition_poisoned.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_blinded": {
+      "sheet": "animations/condition_blinded.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_paralyzed": {
+      "sheet": "animations/condition_paralyzed.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_petrified": {
+      "sheet": "animations/condition_petrified.webp",
+      "frames": 12,
+      "columns": 8,
+      "fps": 5,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_restrained": {
+      "sheet": "animations/condition_restrained.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_prone": {
+      "sheet": "animations/condition_prone.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_down_a": {
+      "sheet": "animations/condition_down_a.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_down_b": {
+      "sheet": "animations/condition_down_b.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_down_c": {
+      "sheet": "animations/condition_down_c.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_prone_trip": {
+      "sheet": "animations/condition_prone_trip.webp",
+      "frames": 8,
+      "columns": 8,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented"
+    },
+    "condition_charmed": {
+      "sheet": "animations/condition_charmed.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_deafened": {
+      "sheet": "animations/condition_deafened.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_frightened": {
+      "sheet": "animations/condition_frightened.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_grappled": {
+      "sheet": "animations/condition_grappled.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_incapacitated": {
+      "sheet": "animations/condition_incapacitated.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "condition_stunned": {
+      "sheet": "animations/condition_stunned.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 7,
+      "loop": true,
+      "status": "implemented"
+    },
+    "dnd_weapon_light": {
+      "sheet": "animations/dnd_weapon_light.webp",
+      "frames": 11,
+      "columns": 8,
+      "fps": 13,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_weapon_heavy": {
+      "sheet": "animations/dnd_weapon_heavy.webp",
+      "frames": 14,
+      "columns": 8,
+      "fps": 13,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_weapon_finesse": {
+      "sheet": "animations/dnd_weapon_finesse.webp",
+      "frames": 11,
+      "columns": 8,
+      "fps": 13,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_weapon_ranged": {
+      "sheet": "animations/dnd_weapon_ranged.webp",
+      "frames": 11,
+      "columns": 8,
+      "fps": 13,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_cast_cone": {
+      "sheet": "animations/dnd_cast_cone.webp",
+      "frames": 14,
+      "columns": 8,
+      "fps": 11,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_cast_a": {
+      "sheet": "animations/dnd_cast_a.webp",
+      "frames": 12,
+      "columns": 8,
+      "fps": 12,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_cast_b": {
+      "sheet": "animations/dnd_cast_b.webp",
+      "frames": 12,
+      "columns": 8,
+      "fps": 12,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_cast_c": {
+      "sheet": "animations/dnd_cast_c.webp",
+      "frames": 12,
+      "columns": 8,
+      "fps": 12,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_cast_d": {
+      "sheet": "animations/dnd_cast_d.webp",
+      "frames": 12,
+      "columns": 8,
+      "fps": 12,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_summon_arcane": {
+      "sheet": "animations/dnd_summon_arcane.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_summon_fire": {
+      "sheet": "animations/dnd_summon_fire.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_summon_frost": {
+      "sheet": "animations/dnd_summon_frost.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_summon_nature": {
+      "sheet": "animations/dnd_summon_nature.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_summon_radiant": {
+      "sheet": "animations/dnd_summon_radiant.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_summon_shadow": {
+      "sheet": "animations/dnd_summon_shadow.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented"
+    },
+    "dnd_summon_storm": {
+      "sheet": "animations/dnd_summon_storm.webp",
+      "frames": 16,
+      "columns": 8,
+      "fps": 10,
+      "loop": false,
+      "status": "implemented"
+    },
+    "condition_prone_look": {
+      "sheet": "animations/condition_prone_look.webp",
+      "frames": 15,
+      "columns": 8,
+      "fps": 7,
+      "loop": false,
+      "status": "implemented"
+    },
+    "condition_restrained_pull": {
+      "sheet": "animations/condition_restrained_pull.webp",
+      "frames": 13,
+      "columns": 8,
+      "fps": 7,
+      "loop": false,
+      "status": "implemented"
+    },
+    "posture_dodge": {
+      "sheet": "animations/posture_dodge.webp",
+      "frames": 14,
+      "columns": 8,
+      "fps": 6,
+      "loop": true,
+      "status": "implemented"
+    },
+    "posture_dodge_back": {
+      "sheet": "animations/posture_dodge_back.webp",
+      "frames": 15,
+      "columns": 8,
+      "fps": 14,
+      "loop": false,
+      "status": "implemented"
+    },
+    "posture_rage": {
+      "sheet": "animations/posture_rage.webp",
+      "frames": 13,
+      "columns": 8,
+      "fps": 6,
+      "loop": true,
+      "status": "implemented"
+    },
+    "posture_hide_s": {
+      "sheet": "animations/posture_hide_s.webp",
+      "frames": 1,
+      "columns": 1,
+      "fps": 1,
+      "loop": true,
+      "status": "implemented"
+    },
+    "posture_sneak_s": {
+      "sheet": "animations/posture_sneak_s.webp",
+      "frames": 8,
+      "columns": 8,
+      "fps": 11,
+      "loop": true,
+      "status": "implemented"
+    },
+    "posture_hide_se": {
+      "sheet": "animations/posture_hide_se.webp",
+      "frames": 1,
+      "columns": 1,
+      "fps": 1,
+      "loop": true,
+      "status": "implemented"
+    },
+    "posture_sneak_se": {
+      "sheet": "animations/posture_sneak_se.webp",
+      "frames": 8,
+      "columns": 8,
+      "fps": 11,
+      "loop": true,
+      "status": "implemented"
+    },
+    "posture_hide_e": {
+      "sheet": "animations/posture_hide_e.webp",
+      "frames": 1,
+      "columns": 1,
+      "fps": 1,
+      "loop": true,
+      "status": "implemented"
+    },
+    "posture_sneak_e": {
+      "sheet": "animations/posture_sneak_e.webp",
+      "frames": 8,
+      "columns": 8,
+      "fps": 11,
+      "loop": true,
+      "status": "implemented"
+    },
+    "posture_hide_ne": {
+      "sheet": "animations/posture_hide_ne.webp",
+      "frames": 1,
+      "columns": 1,
+      "fps": 1,
+      "loop": true,
+      "status": "implemented"
+    },
+    "posture_sneak_ne": {
+      "sheet": "animations/posture_sneak_ne.webp",
+      "frames": 8,
+      "columns": 8,
+      "fps": 11,
+      "loop": true,
+      "status": "implemented"
+    },
+    "posture_hide_n": {
+      "sheet": "animations/posture_hide_n.webp",
+      "frames": 1,
+      "columns": 1,
+      "fps": 1,
+      "loop": true,
+      "status": "implemented"
+    },
+    "posture_sneak_n": {
+      "sheet": "animations/posture_sneak_n.webp",
+      "frames": 8,
+      "columns": 8,
+      "fps": 11,
+      "loop": true,
+      "status": "implemented"
+    }
+  },
+  "fallback": "idle",
+  "textureSampling": "linear",
+  "idleGestures": {
+    "base": "idle",
+    "variants": [
+      "idle_look",
+      "idle_scratch",
+      "idle_adjust",
+      "idle_step"
+    ],
+    "delaySeconds": [
+      6,
+      14
+    ],
+    "byAnimation": {
+      "idle": [
+        "idle_look",
+        "idle_scratch",
+        "idle_adjust",
+        "idle_step"
+      ],
+      "idle_se": [
+        "idle_look_se",
+        "idle_scratch_se",
+        "idle_adjust_se",
+        "idle_step_se"
+      ],
+      "idle_s": [
+        "idle_look_s",
+        "idle_step_s"
+      ],
+      "idle_n": [
+        "idle_n_look",
+        "idle_n_look_left",
+        "idle_n_adjust"
+      ],
+      "idle_ne": [
+        "idle_ne_look",
+        "idle_ne_adjust"
+      ],
+      "idle_exhausted": [
+        "idle_exhausted_pain",
+        "idle_exhausted_sigh"
+      ],
+      "idle_exhausted_n": [
+        "idle_exhausted_n_pain",
+        "idle_exhausted_n_sigh"
+      ],
+      "condition_prone": [
+        "condition_prone_look"
+      ],
+      "condition_restrained": [
+        "condition_restrained_pull"
+      ]
+    },
+    "selection": "randomExceptLast",
+    "playOnce": true,
+    "resetDelayOnActivity": true,
+    "interruptOn": [
+      "move-start",
+      "damage",
+      "incapacitated",
+      "idle_exhausted"
+    ]
+  },
+  "playback": {
+    "idleGestures": {
+      "base": "idle",
+      "variants": [
+        "idle_look",
+        "idle_scratch",
+        "idle_adjust",
+        "idle_step"
+      ],
+      "delaySeconds": [
+        6,
+        14
+      ],
+      "byAnimation": {
+        "idle": [
+          "idle_look",
+          "idle_scratch",
+          "idle_adjust",
+          "idle_step"
+        ],
+        "idle_se": [
+          "idle_look_se",
+          "idle_scratch_se",
+          "idle_adjust_se",
+          "idle_step_se"
+        ],
+        "idle_s": [
+          "idle_look_s",
+          "idle_step_s"
+        ],
+        "idle_n": [
+          "idle_n_look",
+          "idle_n_look_left",
+          "idle_n_adjust"
+        ],
+        "idle_ne": [
+          "idle_ne_look",
+          "idle_ne_adjust"
+        ],
+        "idle_exhausted": [
+          "idle_exhausted_pain",
+          "idle_exhausted_sigh"
+        ],
+        "idle_exhausted_n": [
+          "idle_exhausted_n_pain",
+          "idle_exhausted_n_sigh"
+        ]
+      },
+      "selection": "randomExceptLast",
+      "playOnce": true,
+      "resetDelayOnActivity": true,
+      "interruptOn": [
+        "move-start",
+        "damage",
+        "incapacitated",
+        "idle_exhausted"
+      ]
+    },
+    "damage": {
+      "variants": [
+        "hurt",
+        "hurt_guard"
+      ],
+      "selection": "alternatePerTokenPerHit",
+      "after": "resolveCurrentState",
+      "onIncapacitated": "fall"
+    },
+    "restingHealth": {
+      "current": "hp",
+      "maximum": "maxHp",
+      "requirePositiveMaximum": true,
+      "exhaustedWhen": "0 < hp && 2 * hp < maxHp",
+      "exhausted": "idle_exhausted",
+      "normal": "idle",
+      "onZero": "fall_then_down",
+      "unknownMaximum": "idle",
+      "reevaluateOn": [
+        "tokenReady",
+        "hpChanged",
+        "maxHpChanged",
+        "move-stop",
+        "damageComplete",
+        "riseComplete"
+      ]
+    }
+  },
+  "actions": {
+    "dnd5e": {
+      "melee": [
+        {
+          "animation": "dnd_melee_punch",
+          "label": "Ataque directo",
+          "style": "thrust"
+        },
+        {
+          "animation": "dnd_melee_palm",
+          "label": "Golpe con la palma",
+          "style": "impact"
+        },
+        {
+          "animation": "dnd_melee_sweep",
+          "label": "Barrido de antebrazo",
+          "style": "sweep"
+        },
+        {
+          "animation": "dnd_weapon_light",
+          "style": "light"
+        },
+        {
+          "animation": "dnd_weapon_heavy",
+          "style": "heavy"
+        },
+        {
+          "animation": "dnd_weapon_finesse",
+          "style": "finesse"
+        },
+        {
+          "animation": "dnd_weapon_ranged",
+          "style": "ranged-weapon"
+        }
+      ],
+      "spell": [
+        {
+          "animation": "dnd_spell_burst",
+          "label": "Descarga arcana",
+          "style": "burst"
+        },
+        {
+          "animation": "dnd_spell_ward",
+          "label": "Sello protector",
+          "style": "protection"
+        },
+        {
+          "animation": "dnd_spell_focus",
+          "label": "Conjuro de enfoque",
+          "style": "focus"
+        },
+        {
+          "animation": "dnd_cast_cone",
+          "style": "cone"
+        },
+        {
+          "animation": "dnd_cast_a",
+          "style": "projected"
+        },
+        {
+          "animation": "dnd_cast_b",
+          "style": "projected"
+        },
+        {
+          "animation": "dnd_cast_c",
+          "style": "projected"
+        },
+        {
+          "animation": "dnd_cast_d",
+          "style": "projected"
+        },
+        {
+          "animation": "dnd_summon_arcane",
+          "style": "summon",
+          "tone": "arcane"
+        },
+        {
+          "animation": "dnd_summon_fire",
+          "style": "summon",
+          "tone": "fire"
+        },
+        {
+          "animation": "dnd_summon_frost",
+          "style": "summon",
+          "tone": "frost"
+        },
+        {
+          "animation": "dnd_summon_nature",
+          "style": "summon",
+          "tone": "nature"
+        },
+        {
+          "animation": "dnd_summon_radiant",
+          "style": "summon",
+          "tone": "radiant"
+        },
+        {
+          "animation": "dnd_summon_shadow",
+          "style": "summon",
+          "tone": "shadow"
+        },
+        {
+          "animation": "dnd_summon_storm",
+          "style": "summon",
+          "tone": "storm"
+        }
+      ],
+      "dodge": [
+        {
+          "animation": "dnd_dodge_duck",
+          "label": "Agacharse"
+        },
+        {
+          "animation": "dnd_dodge_lean",
+          "label": "Inclinarse atrás"
+        },
+        {
+          "animation": "dnd_dodge_step",
+          "label": "Quiebro lateral"
+        },
+        {
+          "animation": "posture_dodge_back",
+          "style": "guarded",
+          "label": "Salto hacia atrás desde guardia"
+        }
+      ]
+    }
+  },
+  "conditions": {
+    "dnd5e": {
+      "poisoned": {
+        "loop": "condition_poisoned"
+      },
+      "prone": {
+        "enter": "condition_prone_trip",
+        "loop": "condition_prone"
+      },
+      "blinded": {
+        "loop": "condition_blinded"
+      },
+      "paralyzed": {
+        "loop": "condition_paralyzed"
+      },
+      "petrified": {
+        "loop": "condition_petrified"
+      },
+      "restrained": {
+        "loop": "condition_restrained"
+      },
+      "unconscious": {
+        "variants": [
+          "condition_down_a",
+          "condition_down_b",
+          "condition_down_c"
+        ]
+      },
+      "charmed": {
+        "loop": "condition_charmed"
+      },
+      "deafened": {
+        "loop": "condition_deafened"
+      },
+      "frightened": {
+        "loop": "condition_frightened"
+      },
+      "grappled": {
+        "loop": "condition_grappled"
+      },
+      "incapacitated": {
+        "loop": "condition_incapacitated"
+      },
+      "stunned": {
+        "loop": "condition_stunned"
+      },
+      "exhaustion": {
+        "loop": "idle_exhausted"
+      },
+      "dodging": {
+        "loop": "posture_dodge"
+      },
+      "hiding": {
+        "loop": "posture_hide_s",
+        "rest": {
+          "s": "posture_hide_s",
+          "se": "posture_hide_se",
+          "e": "posture_hide_e",
+          "ne": "posture_hide_ne",
+          "n": "posture_hide_n"
+        },
+        "move": {
+          "s": "posture_sneak_s",
+          "se": "posture_sneak_se",
+          "e": "posture_sneak_e",
+          "ne": "posture_sneak_ne",
+          "n": "posture_sneak_n"
+        }
+      },
+      "raging": {
+        "loop": "posture_rage"
+      }
+    }
+  },
+  "viewport": "grid-standard"
+}

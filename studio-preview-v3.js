@@ -1,10 +1,24 @@
 'use strict';
 
+const hdManifestUrl = new URL('demos/cecille-hd-v080/manifest.json', document.baseURI);
+let hdManifestRequest;
+
+function loadHDManifest() {
+  hdManifestRequest ??= fetch(hdManifestUrl).then(response => {
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  }).catch(error => {
+    hdManifestRequest = undefined;
+    throw error;
+  });
+  return hdManifestRequest;
+}
+
 function mountSpriteDemos() {
   const examples = {
     pixel_legacy: { id: 'javlight', name: 'Javlight' },
     topdown_pixel: { id: 'lory', name: 'Lory Kzoa' },
-    topdown_hd: { id: 'cecille', name: 'Cecille Von Trotesch', manifest: 'cecille-hd-revisado' },
+    topdown_hd: { id: 'cecille', name: 'Cecille Von Trotesch' },
   };
   const canvas = document.querySelector('#demo-stage');
   const ctx = canvas.getContext('2d');
@@ -57,8 +71,34 @@ function mountSpriteDemos() {
     }));
   }
 
-  function drawPose(surface, context, pose, position, alpha, fitWidth) {
-    const { frame, columns, pixelArt, image } = pack;
+  function makeHDScenes(clips) {
+    return [
+      { clip: 'idle', seconds: .55, from: .24, to: .24, fadeIn: true },
+      { clip: 'run_e', seconds: 1.2, from: .24, to: .5, slowdown: true },
+      { clip: 'idle', seconds: .65 },
+      { clip: 'hurt_guard' }, { clip: 'fall' }, { clip: 'down', seconds: 1.2 }, { clip: 'rise' },
+      { clip: 'posture_dodge', seconds: 1.9 }, { clip: 'posture_dodge_back' },
+      { clip: 'posture_dodge', seconds: 1.25 },
+      { clip: 'posture_hide_ne', seconds: 1.2 },
+      { clip: 'posture_sneak_ne', seconds: 1.1, from: .5, to: .64, lift: .07 },
+      { clip: 'posture_sneak_n', seconds: .8, from: .64, to: .64, lift: .07, elevation: .07 },
+      { clip: 'posture_hide_n', seconds: 1.2, from: .64, to: .64, elevation: .14, fadeOut: true },
+      { clip: 'posture_rage', seconds: 1.8, fadeIn: true },
+      { clip: 'dnd_weapon_heavy' }, { clip: 'dnd_cast_cone' }, { clip: 'dnd_summon_arcane' },
+      { clip: 'condition_poisoned', seconds: 1.8 },
+      { clip: 'condition_prone_trip' }, { clip: 'condition_prone', seconds: 1.2 },
+      { clip: 'rise' }, { clip: 'idle', seconds: .9, fadeOut: true },
+    ].map(step => ({
+      ...step,
+      seconds: step.seconds ?? clips[step.clip].frames.length / clips[step.clip].fps,
+    }));
+  }
+
+  function drawPose(surface, context, pose, position, alpha, fitWidth, clip, elevation = 0) {
+    const { frame, pixelArt } = pack;
+    const image = clip?.image ?? pack.image;
+    const columns = clip?.columns ?? pack.columns;
+    if (!image) return;
     const bounds = surface.getBoundingClientRect();
     if (!bounds.width || !bounds.height) return;
     const dpr = window.devicePixelRatio || 1;
@@ -67,14 +107,14 @@ function mountSpriteDemos() {
     if (surface.width !== width) surface.width = width;
     if (surface.height !== height) surface.height = height;
     context.clearRect(0, 0, width, height);
-    const size = Math.min(height * (pixelArt ? .76 : 1.14) / frame.height, width * fitWidth / frame.width);
+    const size = Math.min(height * (pixelArt ? .76 : fitWidth === .44 ? .70 : .79) / frame.height, width * fitWidth / frame.width);
     const drawWidth = frame.width * size;
     const drawHeight = frame.height * size;
     context.imageSmoothingEnabled = !pixelArt;
     context.globalAlpha = alpha;
     context.drawImage(image,
       pose % columns * frame.width, Math.floor(pose / columns) * frame.height, frame.width, frame.height,
-      width * position - drawWidth / 2, height * .83 - frame.baseline * size, drawWidth, drawHeight);
+      width * position - drawWidth / 2, height * (.83 - elevation) - frame.baseline * size, drawWidth, drawHeight);
     context.globalAlpha = 1;
   }
 
@@ -88,7 +128,15 @@ function mountSpriteDemos() {
       return false;
     }) ?? scenes[0];
     const progress = time / step.seconds;
-    const clip = clips[step.clip];
+    const clip = clips[step.clip].failed ? clips.idle : clips[step.clip];
+    if (pack.hd) {
+      const next = scenes[(scenes.indexOf(step) + 1) % scenes.length];
+      requestClip(clips[next.clip]);
+      if (!clip.failed && !clip.image) {
+        requestClip(clip);
+        return false;
+      }
+    }
     const frameIndex = step.clip === 'stop_e'
       ? Math.floor(progress * clip.frames.length)
       : Math.floor(time * clip.fps);
@@ -98,9 +146,24 @@ function mountSpriteDemos() {
     const showStatic = paused && elapsed === 0;
     const alpha = showStatic ? 1 : step.fadeIn ? Math.min(1, time / .18) :
       step.fadeOut ? Math.min(1, (step.seconds - time) / .24) : 1;
-    drawPose(canvas, ctx, pose, showStatic ? .5 : position, alpha, .44);
+    const elevation = (step.elevation ?? 0) + (step.lift ?? 0) * distance;
+    drawPose(canvas, ctx, pose, showStatic ? .5 : position, alpha, .44, clip, elevation);
 
-    if (idleContext) {
+    if (idleContext && pack.hd) {
+      const { gestures } = pack;
+      let gestureTime = elapsed % gestures.reduce((sum, gesture) => sum + gesture.wait + gesture.duration, 0);
+      const gesture = gestures.find(candidate => {
+        if (gestureTime < candidate.wait + candidate.duration) return true;
+        gestureTime -= candidate.wait + candidate.duration;
+        return false;
+      });
+      if (gesture) requestClip(gesture.clip);
+      const showGesture = gesture?.clip.image && gestureTime >= gesture.wait;
+      const restingClip = showGesture ? gesture.clip : clips.idle;
+      const restingTime = showGesture ? gestureTime - gesture.wait : elapsed;
+      const restingPose = restingClip.frames[Math.floor(restingTime * restingClip.fps) % restingClip.frames.length];
+      drawPose(idleCanvas, idleContext, restingPose, .5, 1, .92, restingClip);
+    } else if (idleContext) {
       const gesture = clips.idle_scratch;
       const wait = 6;
       const idleTime = gesture ? elapsed % (wait + gesture.frames.length / gesture.fps) : elapsed;
@@ -113,9 +176,11 @@ function mountSpriteDemos() {
 
   function animate(timestamp) {
     if (paused || !pack) return;
-    if (lastTick !== undefined) elapsed += Math.min((timestamp - lastTick) / 1000, .1);
+    const nextElapsed = elapsed + (lastTick === undefined ? 0 : Math.min((timestamp - lastTick) / 1000, .1));
     lastTick = timestamp;
-    render();
+    const previousElapsed = elapsed;
+    elapsed = nextElapsed;
+    if (render() === false) elapsed = previousElapsed;
     animationId = requestAnimationFrame(animate);
   }
 
@@ -126,6 +191,52 @@ function mountSpriteDemos() {
     play.textContent = paused ? 'Reproducir' : 'Pausar';
     if (paused) render();
     else animationId = requestAnimationFrame(animate);
+  }
+
+  function requestClip(clip) {
+    return clip.promise ??= new Promise((resolve, reject) => {
+      const sheet = new Image();
+      sheet.onload = () => {
+        if (sheet.naturalWidth !== clip.width || sheet.naturalHeight !== clip.height) {
+          reject(new Error(`Las dimensiones de ${clip.url} no coinciden con el manifiesto.`));
+          return;
+        }
+        clip.image = sheet;
+        resolve();
+      };
+      sheet.onerror = () => reject(new Error(`No se pudo cargar ${clip.url}.`));
+      sheet.src = clip.url;
+    }).catch(error => {
+      clip.failed = true;
+      return error;
+    });
+  }
+
+  async function loadHDPack() {
+    const manifest = await loadHDManifest();
+    const { frame } = manifest;
+    const clips = Object.fromEntries(Object.entries(manifest.animations).map(([name, animation]) => {
+      const { frames, columns } = animation;
+      return [name, {
+        ...animation,
+        frames: Array.from({ length: frames }, (_, index) => index),
+        url: new URL(animation.sheet, hdManifestUrl).href,
+        width: frame.width * columns,
+        height: frame.height * Math.ceil(frames / columns),
+      }];
+    }));
+    const failure = await requestClip(clips.idle);
+    if (failure) throw failure;
+    const [minDelay, maxDelay] = manifest.idleGestures.delaySeconds;
+    const gestures = manifest.idleGestures.variants.map((name, index, variants) => {
+      const clip = clips[name];
+      return {
+        clip,
+        wait: minDelay + (maxDelay - minDelay) * index / Math.max(1, variants.length - 1),
+        duration: clip.frames.length / clip.fps,
+      };
+    });
+    return { frame, clips, gestures, hd: true };
   }
 
   async function loadPack(url) {
@@ -147,9 +258,10 @@ function mountSpriteDemos() {
 
   async function select(profile) {
     cancelAnimationFrame(animationId);
-    const { id, name, manifest = id } = examples[profile];
-    const manifestUrl = new URL(`demos/${manifest}.json`, document.baseURI).href;
-    const stillUrl = new URL(`${id}-reposo.webp`, manifestUrl).href;
+    const { id, name } = examples[profile];
+    const hd = profile === 'topdown_hd';
+    const manifestUrl = hd ? hdManifestUrl : new URL(`demos/${id}.json`, document.baseURI);
+    const stillUrl = new URL(hd ? 'native-idle.webp' : `${id}-reposo.webp`, manifestUrl).href;
     const current = { profile, stillUrl };
     selection = current;
     pack = null;
@@ -170,12 +282,12 @@ function mountSpriteDemos() {
     play.disabled = replay.disabled = true;
     buttons.forEach(button => button.setAttribute('aria-pressed', button.dataset.demo === profile));
 
-    if (!cache.has(profile)) cache.set(profile, loadPack(manifestUrl));
+    if (!cache.has(profile)) cache.set(profile, hd ? loadHDPack() : loadPack(manifestUrl));
     try {
       const loaded = await cache.get(profile);
       if (selection !== current) return;
       pack = loaded;
-      scenes = makeScenes(pack.clips);
+      scenes = hd ? makeHDScenes(pack.clips) : makeScenes(pack.clips);
       sceneDuration = scenes.reduce((sum, step) => sum + step.seconds, 0);
       elapsed = 0;
       status.hidden = true;

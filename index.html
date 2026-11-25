@@ -75,7 +75,7 @@
   <button id="export">Descargar solicitud de generación</button>
   <small>Tu ilustración se queda en el navegador. La descarga contiene la solicitud JSON para producir los sprites en el perfil elegido.</small>
 </main>
-<script src="studio-preview-v3.js"></script>
+<script src="studio-preview-v3.js?v=hd-v080"></script>
 <script>
   const reference = document.querySelector('#reference'), preview = document.querySelector('#preview');
   reference.onchange = () => { const file = reference.files[0]; if (!file) return; preview.src = URL.createObjectURL(file); preview.style.display = 'block'; };
@@ -110,48 +110,41 @@
         finish: 'Ilustración digital 2D HD nítida, no pixel art. Vista cenital 3/4 propia de un token de RPG: contorno fino y limpio, formas claras a escala pequeña, luz cenital suave, detalle selectivo y sin bloques de píxeles ni desenfoque.',
         palette: 'Aprobar primero una pose maestra. Mantener su paleta, luz, contraste y saturación constantes en cada orientación y gesto. Ajustar los cuadros de gesto con la tela del reposo como referencia, preservando las facciones y los materiales.',
         identity: 'Preservar rostro, peinado, cuerpo, vestuario, arma, símbolos y accesorios de la ilustración entregada. La referencia define identidad; este perfil define únicamente el estilo unificado.',
-        framing: 'Frames cuadrados de 512×512 con alfa real en WebP. Cámara cenital 3/4 constante; margen de seguridad mínimo del 12% en los cuatro lados. Ninguna parte de cabello, capa, arma o sombra puede tocar el borde. Centro de masa centrado y pies/base en el 72% vertical.',
+        framing: 'Cuadros de 512×512 con alfa real en WebP y cámara cenital 3/4 constante. Mantener margen transparente alrededor de la silueta completa. Usar el ancla y la línea base que declara el manifiesto.',
         anatomy: {
           method: 'Anotar los puntos anatómicos en las poses aprobadas antes de animar. Marcar los puntos ocultos por ropa, pelo o ángulo. Adaptar el esquema a la anatomía del personaje.',
           landmarks: ['cabeza','hombros','codos','manos','torso','cadera','rodillas','pies'],
           validation: 'Una silueta completa por cuadro. Conservar la cantidad de extremidades y la conexión hombro–codo–mano y cadera–rodilla–pie. Revisar cada pose dibujada para aprobar brazos y manos.',
         },
-        motion: 'Preparar carrera en ocho sentidos y mostrar la espalda al correr hacia el norte. Crear reposo direccional con respiración y pies apoyados. Construir cada gesto con poses completas y sucesivas de anticipación, acción y regreso. Evitar interpolación óptica, fundidos entre poses o superposición de extremidades. Reproducir gestos durante 2–2,5 s tras 6–14 s de quietud, incluidos gestos de espalda y de fatiga.',
+        motion: 'Preparar carrera en ocho sentidos y mostrar la espalda al correr hacia el norte. Crear reposo direccional con respiración y pies apoyados. Construir cada gesto con poses completas y sucesivas de anticipación, acción y regreso. Evitar interpolación óptica, fundidos entre poses o superposición de extremidades. Reproducir gestos tras 6–14 s de quietud, incluidos gestos de espalda y de fatiga. Crear las posturas, los movimientos sigilosos, las reacciones a condiciones y los gestos de combate descritos en el manifiesto. Animar los ataques con el cuerpo del personaje. En los conjuros usar los círculos arcanos indicados por el tipo de lanzamiento.',
         review: 'Revisar cuadro a cuadro y a escala del tablero. Comprobar que los gestos conservan anatomía, anclaje, silueta, luz y detalle. Priorizar la claridad y el peso de las hojas al elegir cuántos cuadros exportar.'
       },
-      output: { frame:'512x512', imageFormat:'webp', transparent:true, webp:{quality:89,alpha:true}, sheetLayout:'Una hoja por animación, de izquierda a derecha y de arriba abajo. Máximo 8 columnas; declarar columns si hay más de una fila.', maxColumns:8, textureSampling:'linear', anchor:{x:0.5,y:369/512}, baseline:369, directions:['n','ne','e','se','s','sw','w','nw'] }
+      output: { frame:'512x512', imageFormat:'webp', transparent:true, webp:{quality:89,alpha:true}, sheetLayout:'Una hoja por animación, de izquierda a derecha y de arriba abajo. Máximo 8 columnas; declarar columns si hay más de una fila.', maxColumns:8, textureSampling:'linear', directions:['n','ne','e','se','s','sw','w','nw'] }
     }
   };
   const demoSelector = mountSpriteDemos();
-  const hdGestures = {
-    idle:['idle_look','idle_scratch','idle_adjust','idle_step'],
-    idle_se:['idle_look_se','idle_scratch_se','idle_adjust_se','idle_step_se'],
-    idle_s:['idle_look_s','idle_step_s'],
-    idle_n:['idle_n_look','idle_n_look_left','idle_n_adjust'],
-    idle_ne:['idle_ne_look','idle_ne_adjust'],
-    idle_exhausted:['idle_exhausted_pain','idle_exhausted_sigh'],
-    idle_exhausted_n:['idle_exhausted_n_pain','idle_exhausted_n_sigh'],
-  };
-  document.querySelector('#export').onclick = () => {
+  document.querySelector('#export').onclick = async () => {
     const id = document.querySelector('#id').value.trim();
     if (!/^[a-z0-9_]+$/.test(id)) return alert('Usa minúsculas, números y guion bajo en el identificador.');
     const { profile, stillUrl } = demoSelector.selection;
+    const referenceFile = reference.files[0]?.name ?? null;
+    const identityLock = document.querySelector('#identity').value.trim();
     const selectedProfile = profiles[profile];
     const artDirection = { ...selectedProfile.artDirection, styleSample: { src: stillUrl } };
     const notes = [artDirection.finish, artDirection.palette, artDirection.identity, artDirection.framing, artDirection.motion, document.querySelector('#notes').value.trim()].filter(Boolean).join('\n');
-    const isHD = profile === 'topdown_hd';
-    const timings = isHD
-      ? {
-        ...Object.fromEntries(Object.keys(hdGestures).map(name => [name,[16,6.4,true]])),
-        ...Object.fromEntries(Object.values(hdGestures).flat().map(name => [name,[16,name.includes('_step') ? 8 : 6.4,false]])),
-        run_n:[8,12,true],run_ne:[8,12,true],run_e:[8,12,true],run_se:[8,12,true],run_s:[8,12,true],
-        run_sw:[8,12,true],run_w:[8,12,true],run_nw:[8,12,true],
-        fall:[6,10,false],down:[1,1,true],rise:[6,10,false],hurt:[4,10,false],hurt_guard:[6,10,false],
+    let hd;
+    if (profile === 'topdown_hd') {
+      try {
+        hd = await loadHDManifest();
+      } catch {
+        return alert('No se pudo cargar el manifiesto HD. Vuelve a intentar la descarga.');
       }
-      : {idle:[6,6,true],run:[8,12,true],run_ne:[8,12,true],run_se:[8,12,true],fall:[6,10,false],down:[1,1,true],rise:[6,10,false],hurt:[10,8,false],idle_step:[8,8,false],idle_look:[10,8,false],idle_scratch:[12,8,false],idle_adjust:[10,8,false],hurt_guard:[10,8,false],idle_exhausted:[12,6,true]};
-    const animationSpecs = Object.fromEntries(Object.entries(timings).map(([name,[frames,fps,loop]]) => [
-      name, isHD && frames > 8 ? {frames,fps,loop,columns:8} : {frames,fps,loop}
-    ]));
+    }
+
+    const timings = {idle:[6,6,true],run:[8,12,true],run_ne:[8,12,true],run_se:[8,12,true],fall:[6,10,false],down:[1,1,true],rise:[6,10,false],hurt:[10,8,false],idle_step:[8,8,false],idle_look:[10,8,false],idle_scratch:[12,8,false],idle_adjust:[10,8,false],hurt_guard:[10,8,false],idle_exhausted:[12,6,true]};
+    const animationSpecs = hd
+      ? Object.fromEntries(Object.entries(hd.animations).map(([name, spec]) => [name, {...spec}]))
+      : Object.fromEntries(Object.entries(timings).map(([name,[frames,fps,loop]]) => [name,{frames,fps,loop}]));
     const poses = {
       idle_step:'Usar el reposo aprobado como base. Mantener un pie plantado, levantar ligeramente el otro y volver a la misma pose.',
       idle_look:'Girar primero los ojos, después la cabeza, sostener la mirada un instante y volver al frente. Pies quietos.',
@@ -162,20 +155,50 @@
       idle_exhausted:'Hombros caídos, cabeza baja, mano cerca del costado y respiración pesada con pausa al exhalar. Mostrar la herida por la postura; conservar paleta, facciones y punto de apoyo. Cerrar el bucle sin salto.'
     };
     for (const [name,pose] of Object.entries(poses)) if (animationSpecs[name]) animationSpecs[name].pose = pose;
-    if (isHD) {
+    if (hd) {
       for (const view of ['n','ne']) animationSpecs[`idle_${view}_look`].pose = 'Conservar el cuerpo de espaldas. Girar la cabeza para mirar por encima del hombro y regresar a la pose de partida.';
       animationSpecs.idle_n_look_left.pose = 'Mirar por encima del hombro izquierdo con hombros y pies en su dirección original.';
       for (const suffix of ['', '_n']) {
         animationSpecs[`idle_exhausted${suffix}_pain`].pose = 'Inclinar ligeramente el torso y llevar una mano al costado. Volver al reposo fatigado.';
         animationSpecs[`idle_exhausted${suffix}_sigh`].pose = 'Respirar hondo, soltar los hombros y volver al ritmo habitual.';
       }
+      const hdPoses = {
+        posture_dodge:'Flexionar rodillas y mantener las manos arriba. Mirar a ambos lados en guardia, con los pies listos para impulsarse.',
+        posture_dodge_back:'Saltar atrás al esquivar. Amortiguar el aterrizaje con ambas piernas y regresar a guardia.',
+        posture_rage:'Fruncir el ceño, adelantar el cuerpo y apretar los puños. Mantener la respiración tensa y la postura de ataque.',
+        condition_grappled:'Inclinar el cuerpo como si lo jalaran. Apoyar los pies y tirar en dirección opuesta con brazos y torso.',
+        dnd_weapon_light:'Golpe directo y rápido con el brazo. Recuperar la postura con un paso corto.',
+        dnd_weapon_heavy:'Anticipar con todo el cuerpo, descargar el gesto con firmeza y recuperar el equilibrio.',
+        dnd_weapon_finesse:'Desplazar el peso con precisión y marcar un gesto rápido de muñeca y antebrazo.',
+        dnd_cast_cone:'Proyectar ambas manos al frente con esfuerzo visible y un círculo arcano frente a las palmas.',
+      };
+      for (const name of Object.keys(animationSpecs)) {
+        const motion = name.startsWith('posture_sneak_') ? 'Caminar en cuclillas con pasos cortos y controlados. Mantener la vista de espalda al subir y la orientación del giro en las diagonales.'
+          : name.startsWith('posture_hide_') ? 'Mantenerse en cuclillas y atento en la dirección indicada. Mostrar la espalda al norte.'
+          : name.startsWith('dnd_summon_') ? 'Conjurar con las manos y un círculo amplio a la altura del suelo centrado en los pies. Usar el color correspondiente al tono del conjuro.'
+          : name.startsWith('dnd_cast_') ? 'Preparar y soltar el gesto de lanzar magia a distancia. Variar la posición de manos y el círculo de invocación.'
+          : undefined;
+        const pose = hdPoses[name] ?? motion;
+        if (pose) animationSpecs[name].pose = pose;
+      }
     }
     const playback = {
-      idleGestures:{base:'idle', variants:['idle_look','idle_scratch','idle_adjust','idle_step'], delaySeconds:isHD ? [6,14] : [8,16], ...(isHD ? {byAnimation:hdGestures} : {}), selection:'randomExceptLast', playOnce:true, resetDelayOnActivity:true, interruptOn:['move-start','damage','incapacitated','idle_exhausted']},
+      idleGestures:{base:'idle', variants:['idle_look','idle_scratch','idle_adjust','idle_step'], delaySeconds:[8,16], selection:'randomExceptLast', playOnce:true, resetDelayOnActivity:true, interruptOn:['move-start','damage','incapacitated','idle_exhausted']},
       damage:{variants:['hurt','hurt_guard'], selection:'alternatePerTokenPerHit', after:'resolveCurrentState', onIncapacitated:'fall'},
       restingHealth:{current:'hp', maximum:'maxHp', requirePositiveMaximum:true, exhaustedWhen:'0 < hp && 2 * hp < maxHp', exhausted:'idle_exhausted', normal:'idle', onZero:'fall_then_down', unknownMaximum:'idle', reevaluateOn:['tokenReady','hpChanged','maxHpChanged','move-stop','damageComplete','riseComplete']}
     };
-    const request = { schemaVersion:'0.2.0', characterId:id, referenceFile:reference.files[0]?.name ?? null, identityLock:document.querySelector('#identity').value.trim(), notes, artDirection, output:{ ...selectedProfile.output, animations:Object.keys(timings), animationSpecs, playback } };
+    const output = { ...selectedProfile.output, animations:Object.keys(animationSpecs), animationSpecs, playback:hd?.playback ?? playback };
+    if (hd) {
+      const { frame, scale, viewport, textureSampling, actions, conditions } = hd;
+      Object.assign(output, { anchor:frame.anchor, baseline:frame.baseline, scale, viewport, textureSampling, actions, conditions });
+      output.foundryManifest = {
+        ...hd,
+        id,
+        label:id,
+        source:{ ...hd.source, reference:'reference.webp' },
+      };
+    }
+    const request = { schemaVersion:'0.2.0', characterId:id, referenceFile, identityLock, notes, artDirection, output };
     const blob = new Blob([JSON.stringify(request, null, 2)], {type:'application/json'}), link = document.createElement('a');
     link.href = URL.createObjectURL(blob); link.download = `${id}-sprite-request.json`; link.click(); URL.revokeObjectURL(link.href);
   };
