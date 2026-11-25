@@ -67,6 +67,7 @@
       <button type="button" data-demo="pixel_legacy" aria-pressed="false">Sprite Pixel Art 2D</button>
       <button type="button" data-demo="topdown_pixel" aria-pressed="false">TOP-DOWN Token Pixel</button>
       <button type="button" data-demo="topdown_hd" aria-pressed="true">TOP-DOWN Token HD</button>
+      <button type="button" data-demo="topdown_token" aria-pressed="false">Top-Down Token (T-DT)</button>
     </div>
     <div class="demo-panel">
       <div class="demo-views">
@@ -88,13 +89,13 @@
   </section>
   <label>Rasgos que no pueden cambiar <textarea id="identity">Conservar la silueta, las proporciones, los colores, el vestuario y los accesorios presentes en la ilustración del personaje.</textarea></label>
   <details><summary>Gestos, daño y reposo según la vida</summary>
-    <p>El personaje respira en reposo y puede mirar alrededor, rascarse, acomodarse una prenda o cambiar el apoyo de los pies. En el perfil HD, los gestos duran de 2 a 2,5 segundos y se activan tras 6–14 segundos de reposo. Por debajo del 50 % de HP, aparece el cansancio. A 0 HP se reproduce la caída.</p>
+    <p>El personaje respira en reposo y puede mirar alrededor, rascarse, acomodarse una prenda o cambiar el apoyo de los pies. En HD y T-DT, los gestos duran de 2 a 2,5 segundos y se activan tras 6–14 segundos de reposo. Por debajo del 50 % de HP, aparece el cansancio. A 0 HP se reproduce la caída.</p>
   </details>
   <label>Notas opcionales <textarea id="notes" placeholder="Dirección preferida, detalles de vestuario, personalidad visual..."></textarea></label>
   <button id="export">Descargar solicitud de generación</button>
   <small>La descarga contiene la solicitud JSON. Para producir los sprites, entrega también la ilustración de referencia al generador.</small>
 </main>
-<script src="studio-preview-v3.js?v=lory-pixel-suave-2"></script>
+<script src="studio-preview-v3.js?v=troll-tdt-1"></script>
 <script>
   const reference = document.querySelector('#reference'), preview = document.querySelector('#preview');
   let previewUrl;
@@ -210,6 +211,24 @@
         review: 'Revisar cuadro a cuadro y a escala del tablero. Comprobar que los gestos conservan anatomía, anclaje, silueta, luz y detalle. Priorizar la claridad y el peso de las hojas al elegir cuántos cuadros exportar.'
       },
       output: { frame:'512x512', imageFormat:'webp', transparent:true, webp:{quality:89,alpha:true}, sheetLayout:'Una hoja por animación, de izquierda a derecha y de arriba abajo. Máximo 8 columnas; declarar columns si hay más de una fila.', maxColumns:8, textureSampling:'linear', directions:['n','ne','e','se','s','sw','w','nw'] }
+    },
+    topdown_token: {
+      generationProfile: 'topdown_hd',
+      artDirection: {
+        profile: 'fabula-top-down-token-tdt-v1',
+        camera: { projection:'orthographic', elevationDegrees:90, pitchFromVerticalDegrees:0, lockAcrossFrames:true },
+        finish: 'Ilustración 2D para tablero, vista desde directamente arriba a 90° respecto al suelo, con proyección ortográfica fija. Usar tinta limpia, sombras pintadas, contornos legibles e iluminación uniforme. Mantener la nitidez con detalle selectivo, como en la muestra del troll.',
+        palette: 'Fijar color, contraste y brillo en la pose maestra. Mantener los mismos tonos de piel, pelo, vestuario y equipo cuando el cuerpo gira o se mueve. Reservar el color de los efectos para las animaciones que lo requieran.',
+        identity: 'Usar la ilustración aportada para definir anatomía, piel, vestuario y equipo. La muestra del troll solo fija el acabado y la cámara. Preservar la mano que sostiene el equipo y el lado de cada accesorio asimétrico entre direcciones.',
+        framing: 'Cámara fija sobre la coronilla y los hombros, sin horizonte ni inclinación oblicua. Mantener el centro del cuerpo sobre el ancla del token y dejar margen transparente para los extremos de cada pose. Mostrar las partes del cuerpo que se ven por proyección: la cabeza y los hombros pueden ocultar el rostro, el pecho y las piernas al estar de pie. En el suelo, dejar visible la anatomía que corresponda a la postura caída con la misma cámara.',
+        anatomy: {
+          method: 'Marcar cabeza, hombros, codos, manos, torso, cadera, rodillas y pies. Ubicar también los puntos que se ocultan bajo la silueta. Usar poses completas con orden de oclusión coherente.',
+          landmarks: ['cabeza','hombros','codos','manos','torso','cadera','rodillas','pies'],
+          validation: 'Comprobar que cada brazo y pierna sigue conectado, que cada mano o pie aparece una sola vez y que la silueta conserva escala y volumen sin deformaciones.',
+        },
+        motion: 'Usar el repertorio completo del manifiesto: reposo y gestos por dirección, ocho direcciones de carrera y sigilo, fatiga, daño, caída, inconsciencia, recuperación, posturas, ataques, magia y condiciones. Girar al personaje sobre el plano del suelo. Hacer legible la intención con hombros, brazos, apoyos y cambios de peso cuando el rostro quede oculto. Mantener un intervalo aleatorio de 6 a 14 segundos para los gestos de reposo. Dibujar los círculos de suelo alrededor del ancla y los de manos en la dirección de lanzamiento.',
+        review: 'Comparar la pose maestra y todos los cuadros a escala de tablero. Verificar la cámara fija, los giros en las ocho direcciones, la continuidad de caída y levantarse, la claridad de las siluetas y el margen transparente.',
+      }
     }
   };
   const demoSelector = mountSpriteDemos();
@@ -221,12 +240,13 @@
     const identityLock = document.querySelector('#identity').value.trim();
     const referencePreparation = buildReferencePreparation(identityLock);
     const selectedProfile = profiles[profile];
+    const generationProfile = selectedProfile.generationProfile ?? profile;
     const artDirection = { ...selectedProfile.artDirection, styleSample: { src: stillUrl } };
     const notes = ['Antes de generar los sprites, prepara la ilustración según referencePreparation si hace falta.', artDirection.finish, artDirection.palette, artDirection.identity, artDirection.framing, artDirection.motion, document.querySelector('#notes').value.trim()].filter(Boolean).join('\n');
     let packManifest;
-    if (packManifestUrls[profile]) {
+    if (packManifestUrls[generationProfile]) {
       try {
-        packManifest = await loadProfileManifest(profile);
+        packManifest = await loadProfileManifest(generationProfile);
       } catch {
         return alert('No se pudo cargar el manifiesto del perfil. Vuelve a intentar la descarga.');
       }
@@ -273,12 +293,19 @@
         if (pose) animationSpecs[name].pose = pose;
       }
     }
+    if (profile === 'topdown_token') {
+      animationSpecs.idle_look.pose = 'Girar la cabeza sobre el plano del suelo, mantener los apoyos y regresar. Expresar la mirada con el giro de la coronilla y el cuello.';
+      for (const name of ['idle_n_look','idle_n_look_left','idle_ne_look']) {
+        animationSpecs[name].pose = 'Girar solo la cabeza hacia el lado indicado y regresarla. Mantener la orientación de la espalda y los apoyos, con la cámara vertical fija.';
+      }
+      animationSpecs.posture_rage.pose = 'Ensanchar y tensar los hombros, flexionar los brazos y adelantar el peso. Comunicar la furia con la silueta bajo la cámara cenital.';
+    }
     const playback = {
       idleGestures:{base:'idle', variants:['idle_look','idle_scratch','idle_adjust','idle_step'], delaySeconds:[8,16], selection:'randomExceptLast', playOnce:true, resetDelayOnActivity:true, interruptOn:['move-start','damage','incapacitated','idle_exhausted']},
       damage:{variants:['hurt','hurt_guard'], selection:'alternatePerTokenPerHit', after:'resolveCurrentState', onIncapacitated:'fall'},
       restingHealth:{current:'hp', maximum:'maxHp', requirePositiveMaximum:true, exhaustedWhen:'0 < hp && 2 * hp < maxHp', exhausted:'idle_exhausted', normal:'idle', onZero:'fall_then_down', unknownMaximum:'idle', reevaluateOn:['tokenReady','hpChanged','maxHpChanged','move-stop','damageComplete','riseComplete']}
     };
-    const output = { ...selectedProfile.output, animations:Object.keys(animationSpecs), animationSpecs, playback:packManifest?.playback ?? playback };
+    const output = { ...profiles[generationProfile].output, animations:Object.keys(animationSpecs), animationSpecs, playback:packManifest?.playback ?? playback };
     if (packManifest) {
       const { frame, scale, viewport, textureSampling, actions, conditions } = packManifest;
       Object.assign(output, { anchor:frame.anchor, baseline:frame.baseline, scale, viewport, textureSampling, actions, conditions });

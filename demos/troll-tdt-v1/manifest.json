@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "troll_tdt_demo",
+  "label": "Troll",
+  "frame": {
+    "width": 512,
+    "height": 512,
+    "anchor": {
+      "x": 0.5,
+      "y": 0.5
+    },
+    "baseline": 474,
+    "fit": "contain"
+  },
+  "textureSampling": "linear",
+  "source": {
+    "nativeToken": "native-idle.webp"
+  },
+  "animations": {
+    "idle": {
+      "sheet": "animations/idle.webp",
+      "frames": 8,
+      "fps": 8,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "idle_look": {
+      "sheet": "animations/idle_look.webp",
+      "frames": 16,
+      "fps": 8,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "run": {
+      "sheet": "animations/run.webp",
+      "frames": 8,
+      "fps": 12,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "dnd_weapon_heavy": {
+      "sheet": "animations/dnd_weapon_heavy.webp",
+      "frames": 11,
+      "fps": 10,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "hurt": {
+      "sheet": "animations/hurt.webp",
+      "frames": 8,
+      "fps": 10,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "fall": {
+      "sheet": "animations/fall.webp",
+      "frames": 8,
+      "fps": 12,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "down": {
+      "sheet": "animations/down.webp",
+      "frames": 1,
+      "fps": 1,
+      "loop": true,
+      "columns": 1,
+      "status": "implemented"
+    },
+    "rise": {
+      "sheet": "animations/rise.webp",
+      "frames": 9,
+      "fps": 10,
+      "loop": false,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "run_ne": {
+      "sheet": "animations/run_ne.webp",
+      "frames": 8,
+      "fps": 12,
+      "loop": true,
+      "columns": 8,
+      "status": "implemented"
+    },
+    "stop_e": {
+      "sheet": "animations/stop_e.webp",
+      "frames": 6,
+      "fps": 12,
+      "loop": false,
+      "columns": 6,
+      "status": "implemented"
+    }
+  },
+  "idleGestures": {
+    "base": "idle",
+    "variants": [
+      "idle_look"
+    ],
+    "delaySeconds": [
+      6,
+      14
+    ],
+    "byAnimation": {
+      "idle": [
+        "idle_look"
+      ]
+    }
+  },
+  "fallback": "idle"
+}

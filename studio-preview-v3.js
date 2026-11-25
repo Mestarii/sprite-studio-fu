@@ -4,6 +4,7 @@ const packManifestUrls = {
   pixel_legacy: new URL('demos/javlight-2d-v1/manifest.json?v=javlight-pixel-3', document.baseURI),
   topdown_hd: new URL('demos/cecille-hd-v080/manifest.json?v=hd-brazos-1', document.baseURI),
   topdown_pixel: new URL('demos/lory-pixel-v1/manifest.json?v=lory-pixel-suave-2', document.baseURI),
+  topdown_token: new URL('demos/troll-tdt-v1/manifest.json?v=troll-tdt-1', document.baseURI),
 };
 const packManifestRequests = new Map();
 
@@ -23,6 +24,7 @@ function mountSpriteDemos() {
     pixel_legacy: { id: 'javlight', name: 'Javlight' },
     topdown_pixel: { id: 'lory', name: 'Lory Kzoa' },
     topdown_hd: { id: 'cecille', name: 'Cecille Von Trotesch' },
+    topdown_token: { id: 'troll', name: 'Troll' },
   };
   const canvas = document.querySelector('#demo-stage');
   const ctx = canvas.getContext('2d');
@@ -92,6 +94,25 @@ function mountSpriteDemos() {
       { clip: 'condition_poisoned', seconds: 1.8 },
       { clip: 'condition_prone_trip' }, { clip: 'condition_prone', seconds: 1.2 },
       { clip: 'rise' }, { clip: 'idle', seconds: .9, fadeOut: true },
+    ].map(step => ({
+      ...step,
+      seconds: step.seconds ?? clips[step.clip].frames.length / clips[step.clip].fps,
+    }));
+  }
+
+  function makeTrollScenes(clips) {
+    return [
+      { clip: 'idle', seconds: .55, from: .22, to: .22, fadeIn: true },
+      { clip: 'run', seconds: 1.1, from: .22, to: .43 },
+      { clip: 'run_ne', seconds: .65, from: .43, to: .5, lift: .09, slowdown: true },
+      { clip: 'stop_e', seconds: .55, elevation: .09 },
+      { clip: 'idle_look', elevation: .09 },
+      { clip: 'dnd_weapon_heavy', elevation: .09 },
+      { clip: 'hurt', elevation: .09 },
+      { clip: 'fall', elevation: .09 },
+      { clip: 'down', seconds: 1.25, elevation: .09 },
+      { clip: 'rise', elevation: .09 },
+      { clip: 'idle', seconds: .85, elevation: .09, fadeOut: true },
     ].map(step => ({
       ...step,
       seconds: step.seconds ?? clips[step.clip].frames.length / clips[step.clip].fps,
@@ -342,7 +363,7 @@ function mountSpriteDemos() {
     if (cachedStill) {
       cachedStill.alt = `Sprite de ${name} en reposo`;
       cachedStill.src = stillUrl;
-      cachedStill.classList.toggle('pixel', profile !== 'topdown_hd');
+      cachedStill.classList.toggle('pixel', profile === 'pixel_legacy' || profile === 'topdown_pixel');
     }
     status.hidden = false;
     status.textContent = 'Cargando animación…';
@@ -357,6 +378,7 @@ function mountSpriteDemos() {
       pack = loaded;
       const makeProfileScenes = {
         topdown_hd: makeHDScenes,
+        topdown_token: makeTrollScenes,
         topdown_pixel: makeLoryScenes,
         pixel_legacy: makeJavlightScenes,
       }[profile] ?? makeScenes;
