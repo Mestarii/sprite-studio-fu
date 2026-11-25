@@ -75,7 +75,7 @@
   <button id="export">Descargar solicitud de generación</button>
   <small>Tu ilustración se queda en el navegador. La descarga contiene la solicitud JSON para producir los sprites en el perfil elegido.</small>
 </main>
-<script src="studio-preview-v3.js?v=javlight-pixel-3"></script>
+<script src="studio-preview-v3.js?v=lory-pixel-suave-2"></script>
 <script>
   const reference = document.querySelector('#reference'), preview = document.querySelector('#preview');
   reference.onchange = () => { const file = reference.files[0]; if (!file) return; preview.src = URL.createObjectURL(file); preview.style.display = 'block'; };
@@ -99,18 +99,18 @@
     topdown_pixel: {
       artDirection: {
         profile: 'fabula-top-down-token-pixel-v1',
-        finish: 'Pixel art cenital 3/4 legible a tamaño de token. Usar contornos limpios, volúmenes simples y detalles selectivos; no usar desenfoque ni texturas fuera de escala.',
-        palette: 'Extraer y fijar la paleta del personaje antes de animar; repetirla exactamente en todas las direcciones y estados.',
-        identity: 'La imagen del personaje define rostro, cabello, cuerpo, vestuario y equipo; no cambiar su silueta.',
-        framing: 'Cuadros de 96×96 con transparencia WebP sin pérdida, cámara cenital 3/4 y línea base en Y=91. Mantener el encuadre y margen alrededor de la silueta.',
+        finish: 'Pixel art cenital 3/4 con píxeles discretos y visibles, como en el reposo de Lory. Agrupar tonos cercanos en bloques pequeños, conservar gradaciones cortas en pelo, tela y alas, y mantener contraste moderado. Evitar el desenfoque, la interpolación y el tramado automático.',
+        palette: 'Aprobar primero la pose de reposo del personaje. Fijar hasta 112 colores del cuerpo a partir de esa pose y conservarlos en reposo, carrera, combate y gestos. Dar a los efectos de condición o magia su propia paleta cuando corresponda.',
+        identity: 'La ilustración original del personaje define rostro, cabello, cuerpo, colores, vestuario, equipo y rasgos como las alas. La muestra pixelada de Lory define el acabado.',
+        framing: 'Cuadros de 96×96 con transparencia WebP sin pérdida, cámara cenital 3/4 y línea base en Y=91. Aplicar el agrupado de color en una cuadrícula lógica de 64×64 sin mover el contorno, las articulaciones ni el apoyo de los pies en el cuadro final.',
         motion: 'Dibujar poses completas para reposo, movimiento en ocho sentidos, fatiga, daño, condiciones, combate y conjuros. Para sigilo, bajar la postura y alternar el pie de apoyo. Mostrar la espalda al ir al norte. Mantener gestos de reposo tras 6–14 segundos de quietud.',
         anatomy: {
           method: 'Dibujar cabeza, torso y cadera como volúmenes coherentes. Conectar cada mano al mismo hombro a través de su codo y cada pie a su cadera a través de su rodilla.',
           validation: 'Cuando una mano o pie cambia de sitio, redibujar la zona que dejó. Animar de una pose completa a otra y comprobar la silueta con ampliación por vecino más cercano.',
         },
-        review: 'Comprobar píxeles nítidos, transparencia, escala, apoyo de pies y ausencia de recortes antes de exportar.'
+        review: 'Comparar el reposo aprobado con los cuadros activos a tamaño de token y ampliados por vecino más cercano. Comprobar que se conservan el nivel de contraste, la transparencia, la escala, el apoyo de pies y los detalles distintivos del personaje.'
       },
-      output: { frame:'96x96', imageFormat:'webp', transparent:true, webp:{lossless:true,alpha:true}, sheetLayout:'Una hoja por animación, de izquierda a derecha y de arriba abajo. Conservar las columnas declaradas en cada animación.', textureSampling:'nearest', directions:['n','ne','e','se','s','sw','w','nw'] }
+      output: { frame:'96x96', imageFormat:'webp', transparent:true, webp:{lossless:true,alpha:true}, sheetLayout:'Una hoja por animación, de izquierda a derecha y de arriba abajo. Conservar las columnas declaradas en cada animación.', textureSampling:'nearest', pixelArt:{ grid:{width:96,height:96}, colorGrid:{width:64,height:64}, paletteSource:'approved-idle', maxBodyColors:112, contrast:'soft', antialias:false, dither:false, characterAlpha:'preserve' }, directions:['n','ne','e','se','s','sw','w','nw'] }
     },
     topdown_hd: {
       artDirection: {

@@ -3,7 +3,7 @@
 const packManifestUrls = {
   pixel_legacy: new URL('demos/javlight-2d-v1/manifest.json?v=javlight-pixel-3', document.baseURI),
   topdown_hd: new URL('demos/cecille-hd-v080/manifest.json?v=hd-brazos-1', document.baseURI),
-  topdown_pixel: new URL('demos/lory-pixel-v1/manifest.json', document.baseURI),
+  topdown_pixel: new URL('demos/lory-pixel-v1/manifest.json?v=lory-pixel-suave-2', document.baseURI),
 };
 const packManifestRequests = new Map();
 
@@ -171,7 +171,7 @@ function mountSpriteDemos() {
     context.clearRect(0, 0, width, height);
     const verticalFit = pixelArt && !pack.sheetClips ? .76 : fitWidth === .44 ? .70 : .79;
     const size = Math.min(height * verticalFit / frame.height, width * fitWidth / frame.width);
-    const align = selection.profile === 'pixel_legacy' ? Math.round : value => value;
+    const align = pixelArt ? Math.round : value => value;
     const drawWidth = align(frame.width * size);
     const drawHeight = align(frame.height * size);
     context.imageSmoothingEnabled = !pixelArt;
