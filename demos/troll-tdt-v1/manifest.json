@@ -113,5 +113,7 @@
       ]
     }
   },
-  "fallback": "idle"
+  "fallback": "idle",
+  "viewport": "grid-standard",
+  "scale": 1
 }

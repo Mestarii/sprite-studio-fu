@@ -95,7 +95,7 @@
   <button id="export">Descargar solicitud de generación</button>
   <small>La descarga contiene la solicitud JSON. Para producir los sprites, entrega también la ilustración de referencia al generador.</small>
 </main>
-<script src="studio-preview-v3.js?v=troll-tdt-1"></script>
+<script src="studio-preview-v3.js?v=grid-size-1"></script>
 <script>
   const reference = document.querySelector('#reference'), preview = document.querySelector('#preview');
   let previewUrl;
@@ -231,6 +231,28 @@
       }
     }
   };
+  function tokenFramingFor(frame, overhead) {
+    const dimension = overhead ? Math.max(frame.width, frame.height) : frame.height;
+    const target = dimension === 96 ? 88 : 472;
+    const minTransparentMarginPx = dimension === 96 ? 2 : 8;
+    const measure = overhead ? 'el lado mayor de la silueta proyectada (ancho o alto)' : 'la altura visible de la silueta, de cabeza a pies';
+    const alignment = overhead
+      ? 'Centra el cuerpo sobre el ancla del token. Mantén la proyección cenital real en todas las poses.'
+      : `Usa la línea base Y=${frame.baseline} para los pies en reposo y conserva el apoyo al animar.`;
+    return {
+      reference: 'Cecille HD · grid-standard',
+      grid: { width:1, height:1, textureScale:1 },
+      idle: {
+        metric: overhead ? 'maxProjectedDimension' : 'visibleHeight',
+        targetPixels: target,
+        targetRatio: .92,
+        ratioRange: [.90, .94],
+        alphaThreshold: 32,
+      },
+      minTransparentMarginPx,
+      instruction: `Encuadra para Foundry a escala de imagen 1, con una huella de 1×1 casilla como referencia. En el primer cuadro de reposo, mide ${measure} sobre el alfa del personaje (alfa ≥ 32 de 255, sin contar sombras, auras ni efectos externos). Debe ocupar aproximadamente el 92 % del cuadro, unos ${target} px de ${dimension} px, con un rango del 90 % al 94 %. ${alignment} Aprueba esa pose a tamaño de tablero y usa su escala corporal en todos los cuadros, incluidas carrera, sigilo, combate, fatiga, caída y recuperación. Al agacharse o tumbarse cambia la silueta por la postura, sin estirarla para recuperar altura. Deja ${minTransparentMarginPx} px transparentes hasta cada borde y mantén extremidades, equipo y efectos dentro del cuadro. Exporta native-idle.webp a partir del primer cuadro de reposo con el mismo encuadre y comprueba las hojas terminadas antes de entregar el paquete. Mantén scale en el valor del manifiesto y deja que Foundry aplique las dimensiones reales del token.`,
+    };
+  }
   const demoSelector = mountSpriteDemos();
   document.querySelector('#export').onclick = async () => {
     const id = document.querySelector('#id').value.trim();
@@ -242,7 +264,6 @@
     const selectedProfile = profiles[profile];
     const generationProfile = selectedProfile.generationProfile ?? profile;
     const artDirection = { ...selectedProfile.artDirection, styleSample: { src: stillUrl } };
-    const notes = ['Antes de generar los sprites, prepara la ilustración según referencePreparation si hace falta.', artDirection.finish, artDirection.palette, artDirection.identity, artDirection.framing, artDirection.motion, document.querySelector('#notes').value.trim()].filter(Boolean).join('\n');
     let packManifest;
     if (packManifestUrls[generationProfile]) {
       try {
@@ -251,6 +272,9 @@
         return alert('No se pudo cargar el manifiesto del perfil. Vuelve a intentar la descarga.');
       }
     }
+    const tokenFraming = packManifest ? tokenFramingFor(packManifest.frame, profile === 'topdown_token') : undefined;
+    if (tokenFraming) artDirection.framing += ' ' + tokenFraming.instruction;
+    const notes = ['Antes de generar los sprites, prepara la ilustración según referencePreparation si hace falta.', artDirection.finish, artDirection.palette, artDirection.identity, artDirection.framing, artDirection.motion, document.querySelector('#notes').value.trim()].filter(Boolean).join('\n');
 
     const timings = {idle:[6,6,true],run:[8,12,true],run_ne:[8,12,true],run_se:[8,12,true],fall:[6,10,false],down:[1,1,true],rise:[6,10,false],hurt:[10,8,false],idle_step:[8,8,false],idle_look:[10,8,false],idle_scratch:[12,8,false],idle_adjust:[10,8,false],hurt_guard:[10,8,false],idle_exhausted:[12,6,true]};
     const animationSpecs = packManifest
@@ -308,7 +332,7 @@
     const output = { ...profiles[generationProfile].output, animations:Object.keys(animationSpecs), animationSpecs, playback:packManifest?.playback ?? playback };
     if (packManifest) {
       const { frame, scale, viewport, textureSampling, actions, conditions } = packManifest;
-      Object.assign(output, { anchor:frame.anchor, baseline:frame.baseline, scale, viewport, textureSampling, actions, conditions });
+      Object.assign(output, { anchor:frame.anchor, baseline:frame.baseline, scale, viewport, textureSampling, actions, conditions, tokenFraming });
       output.foundryManifest = {
         ...packManifest,
         id,

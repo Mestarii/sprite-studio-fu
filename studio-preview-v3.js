@@ -4,7 +4,7 @@ const packManifestUrls = {
   pixel_legacy: new URL('demos/javlight-2d-v1/manifest.json?v=javlight-pixel-3', document.baseURI),
   topdown_hd: new URL('demos/cecille-hd-v080/manifest.json?v=hd-brazos-1', document.baseURI),
   topdown_pixel: new URL('demos/lory-pixel-v1/manifest.json?v=lory-pixel-suave-2', document.baseURI),
-  topdown_token: new URL('demos/troll-tdt-v1/manifest.json?v=troll-tdt-1', document.baseURI),
+  topdown_token: new URL('demos/troll-tdt-v1/manifest.json?v=grid-size-1', document.baseURI),
 };
 const packManifestRequests = new Map();
 
@@ -350,7 +350,9 @@ function mountSpriteDemos() {
     const { id, name } = examples[profile];
     const curated = packManifestUrls[profile];
     const manifestUrl = curated ?? new URL(`demos/${id}.json`, document.baseURI);
-    const stillUrl = new URL(curated ? 'native-idle.webp' : `${id}-reposo.webp`, manifestUrl).href;
+    const still = new URL(curated ? 'native-idle.webp' : `${id}-reposo.webp`, manifestUrl);
+    if (profile === 'topdown_token') still.search = manifestUrl.search;
+    const stillUrl = still.href;
     const current = { profile, stillUrl };
     selection = current;
     pack = null;
